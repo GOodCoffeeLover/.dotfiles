@@ -1,9 +1,11 @@
 add_newline = false
+# command_timeout=3000
 
 format = '''
-[╭─\[$directory\]─\[$time\](─$kubernetes)(─\[$cmd_duration\])](bold green)
+[╭─\[$directory\](─{$python})(─{$golang})─\[$time\](─$kubernetes)(─\[$cmd_duration\])](bold green)
 [╰(─{$status})─❯](bold green) '''
-right_format='(git:\($git_branch|$git_commit:$git_status$git_metrics\)$git_state)'
+
+right_format='[(git:\(($git_branch|)$git_commit(:$git_status$git_metrics)\)$git_state)](bold #009900)(${custom.arc})'
 
 [status]
 disabled=false
@@ -40,8 +42,9 @@ format='[⧖ $duration]($style)'
 
 [git_branch]
 disabled=false
-truncation_length=20
-truncation_symbol='...'
+only_attached=true
+# truncation_length=320
+# truncation_symbol='...'
 format='[$symbol$branch(:$remote_branch)]($style)'
 symbol=''
 style='bold green'
@@ -49,6 +52,8 @@ style='bold green'
 [git_commit]
 disabled=false
 only_detached=false
+tag_disabled=false
+tag_symbol=' ◄ '
 format='[$hash$tag]($style)'
 commit_hash_length=8
 style='bold yellow'
@@ -74,8 +79,7 @@ modified = '[*$count](bold yellow)'
 staged = '[@$count](bold green)'
 renamed = '[»$count](bold yellow)'
 deleted = '[✕$count](bold red)'
-
-# conflicted = '🏳'
+# conflicted = '🏳️'
 # ahead = '🏎💨'
 # behind = '😰'
 # diverged = '😵'
@@ -94,3 +98,19 @@ added_style='bold green'
 deleted_style='bold red'
 only_nonzero_diffs=true
 ignore_submodules=false
+
+[python]
+disabled=false
+format='[${symbol}${pyenv_prefix}(${version})](bold #00aaff)[(\($virtualenv\))](bold yellow)'
+version_format='v$raw'
+
+[golang]
+disabled=false
+format='[$symbol($version)]($style)'
+
+[custom.arc]
+ignore_timeout=true
+when=''' [[ "$PWD" =~ $HOME/arcadia.* ]] && [[ "$USER" == "maximalism" ]] '''
+shell='bash'
+command='timeout 15s ~/.arc-promt.sh'
+disabled=false

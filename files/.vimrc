@@ -1,17 +1,3 @@
-" An example for a vimrc file.
-"
-" Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last change:	2019 Dec 17
-"
-" To use it, copy it to
-"	       for Unix:  ~/.vimrc
-"	      for Amiga:  s:.vimrc
-"	 for MS-Windows:  $VIM\_vimrc
-"	      for Haiku:  ~/config/settings/vim/vimrc
-"	    for OpenVMS:  sys$login:.vimrc
-
-" When started as "evim", evim.vim will already have done these settings, bail
-" out.
 if v:progname =~? "evim"
   finish
 endif
@@ -55,3 +41,9 @@ call vundle#end()            " required
 filetype plugin indent on    " required
 
 set shell=/bin/bash
+syntax on
+
+set nobackup
+set number relativenumber
+set cursorline " cursorcolumn
+set showmatch
