@@ -42,8 +42,6 @@ format='[⧖ $duration]($style)'
 [git_branch]
 disabled=false
 only_attached=true
-# truncation_length=320
-# truncation_symbol='...'
 format='[$symbol$branch(:$remote_branch)]($style)'
 symbol=''
 style='bold green'
@@ -91,7 +89,7 @@ deleted = '[✕$count](bold red)'
 # deleted = '🗑'
 
 [git_metrics]
-disabled=false
+disabled=true
 format='({([+$added]($added_style))([-$deleted]($deleted_style))})'
 added_style='bold green'
 deleted_style='bold red'
@@ -106,10 +104,12 @@ version_format='v$raw'
 [golang]
 disabled=false
 format='[$symbol($version)]($style)'
+# symbol=' '
 
 [custom.arc]
 ignore_timeout=true
 when=''' [[ "$PWD" =~ $HOME/arcadia.* ]] && [[ "$USER" == "maximalism" ]] '''
-shell='bash'
-command='timeout 15s ~/.arc-promt.sh'
+shell='zsh'
+command='timeout 3s ~/.arc-promt.sh'
 disabled=false
+style=''
