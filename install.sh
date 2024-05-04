@@ -1,13 +1,45 @@
-# sudo apt install tmux stow
-# curl -sS https://starship.rs/install.sh | sh
+#!/bin/bash
+set -e
 
-echo "Installing tpm"
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-~/.tmux/plugins/tpm/scripts/install_plugins.sh
+function main(){
+    # sudo apt install tmux stow
+    # curl -sS https://starship.rs/install.sh | sh
+    # echo "stow --target=$HOME --dir ./files/ ."
+    # stow --target=$HOME --dir ./files/ .
+   
+    local files_to_link="$(find files -type f | cut -d\/ -f 2-100 | tr '\n' ' ') "
+    echo -e "file to be linked ${files_to_link[@]}\n"
+    for f in ${files_to_link[@]}; do
+        link files $f
+    done
 
-echo "Installing Vundle"
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-vim +PluginInstall +qall
+    echo -e "\nInstalling tpm"
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm || true
+    ~/.tmux/plugins/tpm/scripts/install_plugins.sh
+    
+    echo -e "\nInstalling Vundle"
+    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
+    vim +PluginInstall +qall
+}
 
-echo "stow --target=$HOME --dir ./files/ ."
-stow --target=$HOME --dir ./files/ .
+
+function link(){
+    if [[ ! -f "$PWD/$1/$2" ]]; then
+        echo "$PWD/$1/$2 not exists to create link. skiping..."
+        return
+    fi
+    if [[ -L  $HOME/$2 ]]; then
+        echo "$2 is already hais soft link, skiping..."
+        return
+    fi 
+    
+    if [[ -f $HOME/$2 ]]; then
+        echo "cp $HOME/$2 $PWD/$1/$2"
+        cp $HOME/$2 $PWD/$1/$2
+    fi
+
+    echo "ln -sf $PWD/$1/$2 $HOME/$2"
+    ln -sf $PWD/$1/$2 $HOME/$2 
+}
+
+main
