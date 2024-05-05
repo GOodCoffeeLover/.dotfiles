@@ -4,9 +4,7 @@ set -e
 function main(){
     # sudo apt install tmux stow
     # curl -sS https://starship.rs/install.sh | sh
-    # echo "stow --target=$HOME --dir ./files/ ."
-    # stow --target=$HOME --dir ./files/ .
-   
+
     local files_to_link="$(find files -type f | cut -d\/ -f 2-100 | tr '\n' ' ') "
     echo -e "file to be linked ${files_to_link[@]}\n"
     for f in ${files_to_link[@]}; do
@@ -15,8 +13,12 @@ function main(){
 
     echo -e "\nInstalling tpm"
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm || true
+
+    tmux start-server
+    tmux new-session -d
     ~/.tmux/plugins/tpm/scripts/install_plugins.sh
-    
+    tmux kill-server
+
     echo -e "\nInstalling Vundle"
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
     vim +PluginInstall +qall
@@ -32,7 +34,7 @@ function link(){
         echo "$2 is already hais soft link, skiping..."
         return
     fi 
-    
+
     if [[ -f $HOME/$2 ]]; then
         echo "cp $HOME/$2 $PWD/$1/$2"
         cp $HOME/$2 $PWD/$1/$2

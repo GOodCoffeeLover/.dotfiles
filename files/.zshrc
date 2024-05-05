@@ -120,8 +120,10 @@ gcamp(){
 	gp
 }
 alias t=tmux
-alias ta=t a 
+alias ta='t a'
 eval "$(starship init zsh)"
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
+alias nv=nvim
+export PATH="$PATH:/opt/nvim-linux64/bin"
