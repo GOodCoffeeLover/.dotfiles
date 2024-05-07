@@ -1,6 +1,1 @@
-vim.opt.termguicolors = true
-require('onedark').setup({
-    style = 'warm'
-})
-require('onedark').load()
-
+../../../../.dotfiles/files/.config/nvim/lua/configs/colors.lua
