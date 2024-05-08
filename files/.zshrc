@@ -120,7 +120,7 @@ gcamp(){
 	gp
 }
 alias t=tmux
-alias ta='tmux attach || tmux'
+alias ta='t a'
 eval "$(starship init zsh)"
 
 export VISUAL=vim
