@@ -8,3 +8,6 @@ vim.keymap.set('n', '<leader>fs', function()
     telescope_builtin.grep_string({ search = vim.fn.input('grep > ') });
 end)
 vim.keymap.set('n', '<leader>fg', telescope_builtin.live_grep, {})
+vim.keymap.set('n', '<C-Space>', function ()
+    vim.cmd([[:Neotree toggle]])
+end)

@@ -82,13 +82,3 @@ set splitright
 
 vim.opt.clipboard = "unnamedplus" -- SHARED clipboard with the system
 
-vim.g.floating_window_border = {
-  '╭',
-  '─',
-  '╮',
-  '│',
-  '╯',
-  '─',
-  '╰',
-  '│',
-}
