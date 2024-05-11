@@ -1,4 +1,8 @@
 vim.cmd([[
+map <leader>bn :bnext<cr>
+map <leader>bp :bprevious<cr>
+map <leader>bd :bdelete<cr>
+
 set nobackup
 set number relativenumber
 
@@ -81,4 +85,3 @@ set splitright
 ]])
 
 vim.opt.clipboard = "unnamedplus" -- SHARED clipboard with the system
-

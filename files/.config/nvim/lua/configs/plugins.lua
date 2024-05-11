@@ -58,6 +58,12 @@ require("lazy").setup({
 
     -- DAP support
     { "mfussenegger/nvim-dap" },
+    { "rcarriga/nvim-dap-ui",
+        dependencies = {
+            "mfussenegger/nvim-dap",
+            "nvim-neotest/nvim-nio"
+        },
+    },
     -- DAP Go with ease
     {
         "leoluz/nvim-dap-go",

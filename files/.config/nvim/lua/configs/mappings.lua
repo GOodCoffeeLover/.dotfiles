@@ -11,3 +11,8 @@ vim.keymap.set('n', '<leader>fg', telescope_builtin.live_grep, {})
 vim.keymap.set('n', '<C-Space>', function ()
     vim.cmd([[:Neotree toggle]])
 end)
+
+vim.keymap.set('n', '<leader>bb', telescope_builtin.buffers, {})
+
+vim.keymap.set('n', '<leader>o', telescope_builtin.oldfiles, {})
+
