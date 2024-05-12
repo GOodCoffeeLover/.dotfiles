@@ -2,8 +2,12 @@
 set -e
 
 function main(){
-    sudo apt install -y git curl zsh tmux stow
-    curl -sS https://starship.rs/install.sh | sh
+    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip
+
+    echo -e "\nInstalling starship"
+    if ! command -v starship ; then
+        curl -sS https://starship.rs/install.sh | sh
+    fi
 
     stow --dir files --target $HOME . --adopt
 
@@ -19,29 +23,24 @@ function main(){
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
     vim +PluginInstall +qall
 
+    echo -e "\nInstalling fonts"
     mkdir -p ~/.fonts
     cp -r fonts/UbuntuMono ~/.fonts
     fc-cache -fv
-}
 
+    echo -e "\nInstalling Go"
+    GO_VERSION=1.22.3
+    curl -OL "go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz"
+    sudo rm -rf /usr/local/go
+    sudo tar -C /usr/local -xzf go*.tar.gz
+    rm -f "go$GO_VERSION.linux-amd64.tar.gz" 
 
-function link(){
-    if [[ ! -f "$PWD/$1/$2" ]]; then
-        echo "$PWD/$1/$2 not exists to create link. skiping..."
-        return
-    fi
-    if [[ -L  $HOME/$2 ]]; then
-        echo "$2 is already hais soft link, skiping..."
-        return
-    fi 
+    echo -e "\nInstalling nvim"
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+    sudo rm -rf /opt/nvim*
+    sudo tar -C /opt -xzf nvim-linux64.tar.gz
+    rm -f nvim-linux64.tar.gz
 
-    if [[ -f $HOME/$2 ]]; then
-        echo "cp $HOME/$2 $PWD/$1/$2"
-        cp $HOME/$2 $PWD/$1/$2
-    fi
-
-    echo "ln -sf $PWD/$1/$2 $HOME/$2"
-    ln -sf $PWD/$1/$2 $HOME/$2 
 }
 
 main

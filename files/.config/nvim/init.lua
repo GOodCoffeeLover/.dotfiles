@@ -1,8 +1,8 @@
 -- own cofigs
-require('configs.colors')
-require('configs.mappings')
 require('configs.plugins')
+require('configs.mappings')
 require('configs.settings')
+--require('configs.colors')
 
 -- plugins
 require('plugins.bufferline')
@@ -15,5 +15,4 @@ require('plugins.treesitter')
 require('gopher')
 
 require('nvim-autopairs').setup()
-
 

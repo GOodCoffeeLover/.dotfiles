@@ -12,12 +12,22 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+    {
+        "navarasu/onedark.nvim",
+        lazy = false,
+        priority = 1000,
+        config = function()
+            require('onedark').setup {
+                style = 'warm'
+            }
+            require('onedark').load()
+        end,
+    },
+    { "catppuccin/nvim", name = "catppuccin", priority = 1000 }, -- color theme
+    { "Mofiqul/vscode.nvim" }, -- color theme
     { "phaazon/hop.nvim" },
     { "ThePrimeagen/vim-be-good" },
     { "christoomey/vim-tmux-navigator" },
-    { "catppuccin/nvim", name = "catppuccin", priority = 1000 }, -- color theme
-    { "joshdick/onedark.vim" }, -- color theme
-    { "Mofiqul/vscode.nvim" }, -- color theme
     {
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
