@@ -2,14 +2,10 @@
 set -e
 
 function main(){
-    # sudo apt install tmux stow
-    # curl -sS https://starship.rs/install.sh | sh
+    sudo apt install -y git curl zsh tmux stow
+    curl -sS https://starship.rs/install.sh | sh
 
-    local files_to_link="$(find files -type f | cut -d\/ -f 2-100 | tr '\n' ' ') "
-    echo -e "file to be linked ${files_to_link[@]}\n"
-    for f in ${files_to_link[@]}; do
-        link files $f
-    done
+    stow --dir files --target $HOME . --adopt
 
     echo -e "\nInstalling tpm"
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm || true
@@ -22,6 +18,10 @@ function main(){
     echo -e "\nInstalling Vundle"
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim || true
     vim +PluginInstall +qall
+
+    mkdir -p ~/.fonts
+    cp -r fonts/UbuntuMono ~/.fonts
+    fc-cache -fv
 }
 
 
