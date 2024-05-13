@@ -77,7 +77,7 @@ nnoremap <C-d> <C-d>zz
 nnoremap <C-u> <C-u>zz
 nnoremap n nzzzv
 nnoremap N Nzzzv
-nnoremap <Enter> o<ESC>
+nnoremap <C-Enter> o<ESC>
 nnoremap <S-Enter> O<ESC>
 
 set splitbelow
@@ -85,3 +85,44 @@ set splitright
 ]])
 
 vim.opt.clipboard = "unnamedplus" -- SHARED clipboard with the system
+
+vim.diagnostic.handlers["strikethrough"] = {
+    show = function(namespace, bufnr, diagnostics, _)
+        local ns = vim.diagnostic.get_namespace(namespace)
+
+        if not ns.user_data.strikethrough_ns then
+            ns.user_data.strikethrough_ns = vim.api.nvim_create_namespace ""
+        end
+
+        local higroup = "DiagnosticStrikethroughDeprecated"
+        local strikethrough_ns = ns.user_data.strikethrough_ns
+
+        for _, diagnostic in ipairs(diagnostics) do
+            local user_data = diagnostic.user_data
+
+            if user_data and user_data.lsp.tags and vim.tbl_contains(user_data.lsp.tags, 2) then
+                vim.highlight.range(
+                bufnr,
+                strikethrough_ns,
+                higroup,
+                { diagnostic.lnum, diagnostic.col },
+                { diagnostic.end_lnum, diagnostic.end_col }
+                )
+            end
+        end
+    end,
+    hide = function(namespace, bufnr)
+        local ns = vim.diagnostic.get_namespace(namespace)
+
+        if ns.user_data.strikethrough_ns then
+            vim.api.nvim_buf_clear_namespace(bufnr, ns.user_data.strikethrough_ns, 0, -1)
+        end
+    end,
+}
+
+vim.cmd [[
+augroup diagnostic_strikethrough_deprecated
+    autocmd!
+    autocmd ColorScheme * highlight DiagnosticStrikethroughDeprecated gui=strikethrough
+augroup END
+]]

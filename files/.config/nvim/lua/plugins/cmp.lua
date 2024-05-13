@@ -118,6 +118,8 @@ lspconfig["gopls"].setup({
                 unusedparams = true,
                 deprecated = true,
             },
+            staticcheck = true,
+            gofumpt = true,
         },
     },
 })

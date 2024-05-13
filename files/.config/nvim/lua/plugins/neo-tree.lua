@@ -10,6 +10,12 @@ vim.fn.sign_define("DiagnosticSignInfo", { text = " ", texthl = "DiagnosticSi
 vim.fn.sign_define("DiagnosticSignHint", { text = "☜ ", texthl = "DiagnosticSignHint" })
 
 require("neo-tree").setup({
+    buffers = {
+        follow_current_file = {
+            enabled = true,
+            leave_dirs_open = false,
+        }
+    },
     filesystem = {
         filtered_items = {
             visible = true,
