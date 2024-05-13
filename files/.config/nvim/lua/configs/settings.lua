@@ -86,6 +86,7 @@ set splitright
 
 vim.opt.clipboard = "unnamedplus" -- SHARED clipboard with the system
 
+-- https://neovim.discourse.group/t/add-custom-highlight-group-based-on-user-data-diagnostic-information/1626
 vim.diagnostic.handlers["strikethrough"] = {
     show = function(namespace, bufnr, diagnostics, _)
         local ns = vim.diagnostic.get_namespace(namespace)
