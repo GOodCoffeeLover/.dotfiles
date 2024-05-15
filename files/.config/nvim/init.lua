@@ -12,7 +12,6 @@ require('plugins.mason')
 require('plugins.neo-tree')
 require('plugins.telescope')
 require('plugins.treesitter')
-require('gopher')
 
 require('nvim-autopairs').setup()
 

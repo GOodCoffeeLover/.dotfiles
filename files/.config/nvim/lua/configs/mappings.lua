@@ -16,3 +16,7 @@ key("s", "<c-l>", "<cmd>lua require'luasnip'.jump(1)<CR>", opts)
 key("i", "<c-k>", "<cmd>lua require'luasnip'.jump(-1)<CR>", opts)
 key("s", "<c-k>", "<cmd>lua require'luasnip'.jump(-1)<CR>", opts)
 
+
+
+key("n", "<leader>gf", ":GoFillStruct<CR>", opts)
+
