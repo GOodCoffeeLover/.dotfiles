@@ -158,7 +158,8 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
 
-local _border = "single"
+-- array or "none", "single", "double", "rounded", "solid", "shadow"
+local _border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" }
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover, {
