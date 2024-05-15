@@ -7,7 +7,7 @@ vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 vim.fn.sign_define("DiagnosticSignError", { text = " ", texthl = "DiagnosticSignError" })
 vim.fn.sign_define("DiagnosticSignWarn", { text = " ", texthl = "DiagnosticSignWarn" })
 vim.fn.sign_define("DiagnosticSignInfo", { text = " ", texthl = "DiagnosticSignInfo" })
-vim.fn.sign_define("DiagnosticSignHint", { text = "☜ ", texthl = "DiagnosticSignHint" })
+vim.fn.sign_define("DiagnosticSignHint", { text = "󰌵 ", texthl = "DiagnosticSignHint" })
 
 require("neo-tree").setup({
     buffers = {
@@ -27,7 +27,7 @@ require("neo-tree").setup({
             "thumbs.db",
         },
     },
-    default_componen_configs = {
+    default_component_configs = {
         git_status = {
             symbols = {
                 -- Change type
@@ -38,10 +38,17 @@ require("neo-tree").setup({
                 -- Status type
                 untracked = "",
                 ignored   = "",
-                unstaged  = "󰄱",
+                unstaged  = "󰄱",
                 staged    = "",
                 conflict  = "",
             }
+        },
+        -- add to left of dirs expanders and overwrite lines
+        indent = {
+          with_expanders = false,
+          expander_collapsed = "",
+          expander_expanded = "",
+          expander_highlight = "NeoTreeExpander",
         },
     },
     window = {
