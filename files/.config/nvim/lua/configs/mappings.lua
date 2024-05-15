@@ -1,17 +1,18 @@
 vim.g.mapleader = ' '
 vim.keymap.set('n', '<leader>p', vim.cmd.Ex)
 
-local telescope_builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', telescope_builtin.find_files, {})
-vim.keymap.set('n', '<C-f>', telescope_builtin.git_files, {})
-vim.keymap.set('n', '<leader>fs', function()
-    telescope_builtin.grep_string({ search = vim.fn.input('grep > ') });
-end)
-vim.keymap.set('n', '<leader>fg', telescope_builtin.live_grep, {})
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 
 vim.keymap.set("n", "<C-Space>", ":Neotree toggle reveal_force_cwd<CR>", {})
 
-vim.keymap.set('n', '<leader>bb', telescope_builtin.buffers, {})
-
-vim.keymap.set('n', '<leader>o', telescope_builtin.oldfiles, {})
+local key = vim.api.nvim_set_keymap
+local opts = { noremap = true, silent = true }
+key("i", "<c-l>", "<cmd>lua require'luasnip'.jump(1)<CR>", opts)
+key("s", "<c-l>", "<cmd>lua require'luasnip'.jump(1)<CR>", opts)
+key("i", "<c-k>", "<cmd>lua require'luasnip'.jump(-1)<CR>", opts)
+key("s", "<c-k>", "<cmd>lua require'luasnip'.jump(-1)<CR>", opts)
 

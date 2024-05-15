@@ -1,6 +1,6 @@
 vim.cmd([[
-map <leader>bn :bnext<cr>
-map <leader>bp :bprevious<cr>
+map <C-N> :bnext<cr>
+map <C-P> :bprevious<cr>
 map <leader>bd :bdelete<cr>
 
 set nobackup

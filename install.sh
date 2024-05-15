@@ -2,14 +2,14 @@
 set -e
 
 function main(){
-    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip
+    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep
 
     echo -e "\nInstalling starship"
     if ! command -v starship ; then
         curl -sS https://starship.rs/install.sh | sh
     fi
 
-    stow --dir files --target $HOME . --adopt
+    stow --dir files --target "$HOME" . --adopt
 
     echo -e "\nInstalling tpm"
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm || true
