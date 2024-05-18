@@ -16,7 +16,14 @@ key("s", "<c-l>", "<cmd>lua require'luasnip'.jump(1)<CR>", opts)
 key("i", "<c-k>", "<cmd>lua require'luasnip'.jump(-1)<CR>", opts)
 key("s", "<c-k>", "<cmd>lua require'luasnip'.jump(-1)<CR>", opts)
 
-
+-- TODO: check https://github.com/numToStr/Comment.nvim
 
 key("n", "<leader>gf", ":GoFillStruct<CR>", opts)
 
+vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle() end)
+vim.keymap.set("n", "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end)
+vim.keymap.set("n", "<leader>xd", function() require("trouble").toggle("document_diagnostics") end)
+vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix") end)
+vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
+vim.keymap.set("n", "gr", function() require("trouble").toggle("lsp_references") end)
+vim.keymap.set("n", "gi", function() require("trouble").toggle("lsp_implementations") end)

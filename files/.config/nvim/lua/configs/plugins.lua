@@ -47,10 +47,10 @@ require("lazy").setup({
         "Pocco81/auto-save.nvim",
         config = function()
             require("auto-save").setup {
-                enabled = true, -- start auto-save when the plugin is loaded (i.e. when your package manager loads it)
+                enabled = false, -- start auto-save when the plugin is loaded (i.e. when your package manager loads it)
                 execution_message = {
                     message = function() -- message to print on save
-                        return ("AutoSave: saved at " .. vim.fn.strftime("%H:%M:%S"))
+                        return ("AutoSave: was saved at " .. vim.fn.strftime("%H:%M:%S"))
                     end,
                     dim = 0.18, -- dim the color of `message`
                     cleaning_interval = 1250, -- (milliseconds) automatically clean MsgArea after displaying `message`. See :h MsgArea
@@ -71,7 +71,7 @@ require("lazy").setup({
                     return false -- can't save
                 end,
                 write_all_buffers = false, -- write all buffers when the current one meets `condition`
-                debounce_delay = 135, -- saves the file at most every `debounce_delay` milliseconds
+                debounce_delay = 1350, -- saves the file at most every `debounce_delay` milliseconds
                 callbacks = { -- functions to be executed at different intervals
                 enabling = nil, -- ran when enabling auto-save
                 disabling = nil, -- ran when disabling auto-save
@@ -81,6 +81,15 @@ require("lazy").setup({
             },
         }
     end,
+    },
+    {
+        "folke/trouble.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        opts = {
+            -- your configuration comes here
+            -- or leave it empty to use the default settings
+            -- refer to the configuration section below
+        },
     },
     -- LSP support
     { "neovim/nvim-lspconfig" },
