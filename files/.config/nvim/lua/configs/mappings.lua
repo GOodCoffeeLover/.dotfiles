@@ -1,5 +1,5 @@
 vim.g.mapleader = ' '
-vim.keymap.set('n', '<leader>p', vim.cmd.Ex)
+-- vim.keymap.set('n', '<leader>p', vim.cmd.Ex)
 
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
@@ -27,3 +27,5 @@ vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix
 vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
 vim.keymap.set("n", "gr", function() require("trouble").toggle("lsp_references") end)
 vim.keymap.set("n", "gi", function() require("trouble").toggle("lsp_implementations") end)
+
+vim.api.nvim_set_keymap("n", "<leader>as", ":ASToggle<CR>", {})

@@ -1,5 +1,6 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
+
   vim.fn.system({
     "git",
     "clone",
@@ -47,7 +48,7 @@ require("lazy").setup({
         "Pocco81/auto-save.nvim",
         config = function()
             require("auto-save").setup {
-                enabled = false, -- start auto-save when the plugin is loaded (i.e. when your package manager loads it)
+                -- enabled = false, -- start auto-save when the plugin is loaded (i.e. when your package manager loads it)
                 execution_message = {
                     message = function() -- message to print on save
                         return ("AutoSave: was saved at " .. vim.fn.strftime("%H:%M:%S"))
@@ -62,13 +63,26 @@ require("lazy").setup({
                 condition = function(buf)
                     local fn = vim.fn
                     local utils = require("auto-save.utils.data")
-
-                    if
-                        fn.getbufvar(buf, "&modifiable") == 1 and
-                        utils.not_in(fn.getbufvar(buf, "&filetype"), {}) then
-                        return true -- met condition(s), can save
+                    if fn.getbufvar(buf, "&modifiable") ~= 1 then
+                        return false
                     end
-                    return false -- can't save
+
+                    if not utils.not_in(fn.getbufvar(buf, "&filetype"), {}) then
+                        return  false -- met condition(s), can save
+                    end
+
+                    local errors_count = 0
+                    local dd = vim.diagnostic.get(buf, { severity = vim.diagnostic.severity.ERROR })
+                    for ds in pairs(dd) do
+                        print(ds)
+                        errors_count = errors_count + 1
+                    end
+
+                    if errors_count ~= 0 then
+                        return false
+                    end
+
+                    return true -- can save
                 end,
                 write_all_buffers = false, -- write all buffers when the current one meets `condition`
                 debounce_delay = 1350, -- saves the file at most every `debounce_delay` milliseconds
@@ -192,7 +206,12 @@ require("lazy").setup({
     {
         "folke/todo-comments.nvim",
         dependencies = { "nvim-lua/plenary.nvim" },
-        opts = {},
+        opts = {
+            highlight = {
+                pattern = [[.*<(KEYWORDS)\s*(\([\w\s]*\))?\s*:]],
+                -- pattern = [[.*<(KEYWORDS)\s*:]],
+            },
+        },
     },
     {
         "akinsho/git-conflict.nvim",
