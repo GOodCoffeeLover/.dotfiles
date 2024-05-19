@@ -2,13 +2,17 @@
 set -e
 
 function main(){
-    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep
+    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep vim
 
     echo -e "\nInstalling starship"
     if ! command -v starship ; then
         curl -sS https://starship.rs/install.sh | sh
     fi
-
+    if [ ! -d ~/.oh-my-zsh ] ; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        rm ~/.zshrc
+    fi
     stow --dir files --target "$HOME" . --adopt
 
     echo -e "\nInstalling tpm"
@@ -28,12 +32,14 @@ function main(){
     cp -r fonts/UbuntuMono ~/.fonts
     fc-cache -fv
 
-    echo -e "\nInstalling Go"
-    GO_VERSION=1.22.3
-    curl -OL "go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz"
-    sudo rm -rf /usr/local/go
-    sudo tar -C /usr/local -xzf go*.tar.gz
-    rm -f "go$GO_VERSION.linux-amd64.tar.gz" 
+    if ! command -v go ; then
+        echo -e "\nInstalling Go"
+        GO_VERSION=1.22.3
+        curl -OL "go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz"
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf go*.tar.gz
+        rm -f "go$GO_VERSION.linux-amd64.tar.gz" 
+    fi
 
     echo -e "\nInstalling nvim"
     curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
