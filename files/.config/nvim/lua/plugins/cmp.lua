@@ -1,6 +1,10 @@
 -- Filetype autodetect
+-- array or "none", "single", "double", "rounded", "solid", "shadow"
+local _border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" }
+local _cmp_border = 'rounded'
 
 vim.api.nvim_command("autocmd BufRead,BufNewFile *.sls set filetype=sls")
+
 
 -- Set up nvim-cmp.
 local cmp = require("cmp")
@@ -19,13 +23,26 @@ cmp.setup({
       ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
     }),
 
-    sources = cmp.config.sources({
+    sources = cmp.config.sources(
+    {
         { name = "nvim_lsp" },
         { name = "nvim_lsp_signature_help" },
         { name = "luasnip" }, -- For luasnip users.
-    }, {
+    },
+    {
         { name = "buffer" },
-    }),
+    }
+    ),
+    window = {
+        completion = {
+        border = _cmp_border,
+        scrollbar = '',
+    },
+    documentation = {
+        border = _cmp_border,
+        scrollbar = '',
+    },
+  },
 })
 
 -- Set configuration for specific filetype.
@@ -158,8 +175,6 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
 
--- array or "none", "single", "double", "rounded", "solid", "shadow"
-local _border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" }
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover, {
