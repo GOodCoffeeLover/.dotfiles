@@ -127,3 +127,14 @@ export VISUAL=vim
 export EDITOR="$VISUAL"
 alias nv=nvim
 export PATH="$PATH:/opt/nvim-linux64/bin"
+
+# The next line updates PATH for Yandex Cloud CLI.
+if [ -f '/home/schizo/yandex-cloud/path.bash.inc' ]; then source '/home/schizo/yandex-cloud/path.bash.inc'; fi
+
+# The next line enables shell command completion for yc.
+if [ -f '/home/schizo/yandex-cloud/completion.zsh.inc' ]; then source '/home/schizo/yandex-cloud/completion.zsh.inc'; fi
+
+
+# The next line updates PATH for Yandex Cloud YDB CLI.
+if [ -f '/home/schizo/ydb/path.bash.inc' ]; then source '/home/schizo/ydb/path.bash.inc'; fi
+
