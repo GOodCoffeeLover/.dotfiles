@@ -2,7 +2,7 @@
 set -e
 
 function main(){
-    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep vim
+    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep vim python3.12-venv
 
     echo -e "\nInstalling starship"
     if ! command -v starship ; then

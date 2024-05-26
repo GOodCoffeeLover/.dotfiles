@@ -144,6 +144,8 @@ require("lazy").setup({
             })
         end
     },
+    { "vim-pandoc/vim-pandoc" },
+    { "vim-pandoc/vim-pandoc-syntax" },
     {
         "folke/trouble.nvim",
         dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -267,6 +269,10 @@ require("lazy").setup({
     },
     {
         "sindrets/diffview.nvim",
+    },
+    {
+        "lukas-reineke/headlines.nvim",
+        dependencies = "nvim-treesitter/nvim-treesitter",
     },
 })
 
