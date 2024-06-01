@@ -18,7 +18,7 @@ require("mason-tool-installer").setup({
         "goimports",
         "gopls",
         "helm-ls",
-        -- "jinja-lsp",
+        "jinja-lsp",
         "json-lsp",
         "lua-language-server",
         "marksman",

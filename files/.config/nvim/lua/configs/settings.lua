@@ -82,6 +82,7 @@ nnoremap <S-Enter> O<ESC>
 
 set splitbelow
 set splitright
+  
 ]])
 
 vim.opt.clipboard = "unnamedplus" -- SHARED clipboard with the system
@@ -121,9 +122,9 @@ vim.diagnostic.handlers["strikethrough"] = {
     end,
 }
 
-vim.cmd [[
+vim.cmd ([[
 augroup diagnostic_strikethrough_deprecated
     autocmd!
     autocmd ColorScheme * highlight DiagnosticStrikethroughDeprecated gui=strikethrough
 augroup END
-]]
+]])

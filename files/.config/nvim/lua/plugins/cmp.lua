@@ -1,6 +1,6 @@
 -- Filetype autodetect
 -- array or "none", "single", "double", "rounded", "solid", "shadow"
-local _border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" }
+local _border = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" }
 local _cmp_border = 'rounded'
 
 vim.api.nvim_command("autocmd BufRead,BufNewFile *.sls set filetype=sls")
@@ -16,33 +16,33 @@ cmp.setup({
         end,
     },
     mapping = cmp.mapping.preset.insert({
-      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<C-e>'] = cmp.mapping.abort(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-e>'] = cmp.mapping.abort(),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
     }),
 
     sources = cmp.config.sources(
-    {
-        { name = "nvim_lsp" },
-        { name = "nvim_lsp_signature_help" },
-        { name = "luasnip" }, -- For luasnip users.
-    },
-    {
-        { name = "buffer" },
-    }
+        {
+            { name = "nvim_lsp" },
+            { name = "nvim_lsp_signature_help" },
+            { name = "luasnip" }, -- For luasnip users.
+        },
+        {
+            { name = "buffer" },
+        }
     ),
     window = {
         completion = {
-        border = _cmp_border,
-        scrollbar = '',
+            border = _cmp_border,
+            scrollbar = '',
+        },
+        documentation = {
+            border = _cmp_border,
+            scrollbar = '',
+        },
     },
-    documentation = {
-        border = _cmp_border,
-        scrollbar = '',
-    },
-  },
 })
 
 -- Set configuration for specific filetype.
@@ -83,7 +83,7 @@ local servers = {
     "bufls",
     "tsserver",
     "jsonls",
-    "jinja_lsp",
+--    "jinja_lsp",
     "helm_ls",
     "sqls",
     "ansiblels",
@@ -92,6 +92,22 @@ local servers = {
     "autotools_ls",
     "marksman",
 }
+lspconfig.jinja_lsp.setup({
+    default_config = {
+        name = "jinja-lsp",
+        cmd = { 'path_to_lsp_or_command' },
+        filetypes = { 'jinja', 'yaml' },
+        root_dir = function(fname)
+            return "."
+            --return nvim_lsp.util.find_git_ancestor(fname)
+        end,
+        init_options = {
+            templates = './templates',
+            backend = { './src' },
+            lang = "rust"
+        },
+    },
+})
 
 -- lsps with default config
 for _, lsp in ipairs(servers) do
@@ -142,26 +158,26 @@ lspconfig["gopls"].setup({
 })
 
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.go",
-  callback = function()
-    local params = vim.lsp.util.make_range_params()
-    params.context = {only = {"source.organizeImports"}}
-    -- buf_request_sync defaults to a 1000ms timeout. Depending on your
-    -- machine and codebase, you may want longer. Add an additional
-    -- argument after params if you find that you have to write the file
-    -- twice for changes to be saved.
-    -- E.g., vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 3000)
-    local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params)
-    for cid, res in pairs(result or {}) do
-      for _, r in pairs(res.result or {}) do
-        if r.edit then
-          local enc = (vim.lsp.get_client_by_id(cid) or {}).offset_encoding or "utf-16"
-          vim.lsp.util.apply_workspace_edit(r.edit, enc)
+    pattern = "*.go",
+    callback = function()
+        local params = vim.lsp.util.make_range_params()
+        params.context = { only = { "source.organizeImports" } }
+        -- buf_request_sync defaults to a 1000ms timeout. Depending on your
+        -- machine and codebase, you may want longer. Add an additional
+        -- argument after params if you find that you have to write the file
+        -- twice for changes to be saved.
+        -- E.g., vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 3000)
+        local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params)
+        for cid, res in pairs(result or {}) do
+            for _, r in pairs(res.result or {}) do
+                if r.edit then
+                    local enc = (vim.lsp.get_client_by_id(cid) or {}).offset_encoding or "utf-16"
+                    vim.lsp.util.apply_workspace_edit(r.edit, enc)
+                end
+            end
         end
-      end
+        vim.lsp.buf.format({ async = false })
     end
-    vim.lsp.buf.format({async = false})
-  end
 })
 
 lspconfig["pyright"].setup({
@@ -177,19 +193,19 @@ vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
 
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-  vim.lsp.handlers.hover, {
-    border = _border
-  }
+    vim.lsp.handlers.hover, {
+        border = _border
+    }
 )
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-  vim.lsp.handlers.signature_help, {
-    border = _border
-  }
+    vim.lsp.handlers.signature_help, {
+        border = _border
+    }
 )
 
-vim.diagnostic.config{
-  float={border=_border}
+vim.diagnostic.config {
+    float = { border = _border }
 }
 
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -268,3 +284,4 @@ local cfg = require("yaml-companion").setup({
 
 lspconfig.yamlls.setup(cfg)
 require("telescope").load_extension("yaml_schema")
+

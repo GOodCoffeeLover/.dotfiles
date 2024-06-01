@@ -47,6 +47,7 @@ syntax on
 set nocompatible
 
 colorscheme pablo
+colorscheme murphy
 
 set nobackup
 set number relativenumber
