@@ -138,3 +138,7 @@ if [ -f '/home/schizo/yandex-cloud/completion.zsh.inc' ]; then source '/home/sch
 # The next line updates PATH for Yandex Cloud YDB CLI.
 if [ -f '/home/schizo/ydb/path.bash.inc' ]; then source '/home/schizo/ydb/path.bash.inc'; fi
 
+alias tf=tofu
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/bin/tofu tofu

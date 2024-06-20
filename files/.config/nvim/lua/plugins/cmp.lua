@@ -87,7 +87,6 @@ local servers = {
     "helm_ls",
     "sqls",
     "ansiblels",
-    "terraformls",
     "yamlls",
     "autotools_ls",
     "marksman",
@@ -285,3 +284,14 @@ local cfg = require("yaml-companion").setup({
 lspconfig.yamlls.setup(cfg)
 require("telescope").load_extension("yaml_schema")
 
+require('lspconfig').terraformls.setup({
+    settings = {
+        filetypes = {"terraform", "tf", "terraform-vars"}
+    }
+})
+vim.api.nvim_create_autocmd({"BufWritePre"}, {
+  pattern = {"*.tf", "*.tfvars"},
+  callback = function()
+    vim.lsp.buf.format()
+  end,
+})
