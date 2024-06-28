@@ -128,3 +128,10 @@ augroup diagnostic_strikethrough_deprecated
     autocmd ColorScheme * highlight DiagnosticStrikethroughDeprecated gui=strikethrough
 augroup END
 ]])
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
+--vim.opt.foldlevelstart = 2
+vim.opt.foldnestmax = 4
+vim.opt.foldtext = ""
