@@ -106,8 +106,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias kx=kubectx
-alias kns=kubens
+alias kx="k ctx"
+alias kns="k ns"
 
 export PATH=$PATH:/usr/local/go/bin
 export PATH="$PATH:$(go env GOPATH)/bin"
@@ -142,3 +142,6 @@ alias tf=tofu
 
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/bin/tofu tofu
+autoload -U compinit; compinit
+source /home/schizo/yandex-cloud/completion.zsh.inc
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"

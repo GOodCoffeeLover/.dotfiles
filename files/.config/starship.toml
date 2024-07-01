@@ -5,7 +5,7 @@ format = '''
 [╭─\[$directory\](─{$python})(─{$golang})─\[$time\](─$kubernetes)(─\[$cmd_duration\])](bold green)
 [╰(─{$status})─❯](bold green) '''
 
-right_format='(git:\($git_branch(|$git_commit)(:$git_status$git_metrics)\)$git_state)(${custom.arc})'
+right_format='(git:\(($git_branch|)$git_commit(:$git_status$git_metrics)\)$git_state)(${custom.arc})'
 
 [status]
 disabled=false
