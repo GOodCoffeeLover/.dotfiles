@@ -27,5 +27,8 @@ vim.keymap.set("n", "<leader>xq", function() require("trouble").toggle("quickfix
 vim.keymap.set("n", "<leader>xl", function() require("trouble").toggle("loclist") end)
 vim.keymap.set("n", "gr", function() require("trouble").toggle("lsp_references") end)
 vim.keymap.set("n", "gi", function() require("trouble").toggle("lsp_implementations") end)
+vim.keymap.set("n", "gd", function() require("trouble").toggle("lsp_definitions") end)
+vim.keymap.set("n", "gD", function() require("trouble").toggle("lsp_declarations") end)
+vim.keymap.set("n", "D", function() require("trouble").toggle("lsp_type_definitions") end)
 
 vim.api.nvim_set_keymap("n", "<leader>as", ":ASToggle<CR>", {})
