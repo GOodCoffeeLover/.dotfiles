@@ -2,7 +2,7 @@
 set -e
 
 function main(){
-    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep vim python3.12-venv
+    sudo apt install -y git curl zsh tmux stow xclip npm gcc pip ripgrep vim python3-venv
 
     echo -e "\nInstalling starship"
     if ! command -v starship ; then
@@ -15,11 +15,13 @@ function main(){
     fi
     stow --dir files --target "$HOME" . --adopt
 
+    grep "default_zshrc" ~/.zshrc  || echo "source ~/.default_zshrc" >> ~/.zshrc
+
     echo -e "\nInstalling tpm"
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm || true
 
     tmux start-server
-    tmux new-session -d
+    tmux new-session -d 
     ~/.tmux/plugins/tpm/scripts/install_plugins.sh
     tmux kill-server
 
@@ -46,6 +48,7 @@ function main(){
     sudo rm -rf /opt/nvim*
     sudo tar -C /opt -xzf nvim-linux64.tar.gz
     rm -f nvim-linux64.tar.gz
+
 
 }
 

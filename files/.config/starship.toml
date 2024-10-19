@@ -2,7 +2,7 @@ command_timeout=5000
 add_newline = false
 
 format = '''
-[╭─\[$directory\](─{$python})(─{$golang})─\[$time\](─$kubernetes)(─\[$cmd_duration\])](bold green)
+[╭(─\[$hostname\])─\[$directory\](─{$python})(─{$golang})─\[$time\](─$kubernetes)(─\[$cmd_duration\])](bold green)
 [╰(─{$status})─❯](bold green) '''
 
 right_format='(git:\(($git_branch|)$git_commit(:$git_status$git_metrics)\)$git_state)(${custom.arc})'
@@ -114,3 +114,8 @@ shell='zsh'
 command='timeout 3s ~/.arc-promt.sh'
 disabled=false
 style=''
+
+[hostname]
+ssh_only =  true
+format = '[$hostname](bold white)'
+disabled = false
