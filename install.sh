@@ -15,7 +15,7 @@ function main(){
     fi
     stow --dir files --target "$HOME" . --adopt
 
-    grep "default_zshrc" ~/.zshrc  || echo "source ~/.default_zshrc" >> ~/.zshrc
+    grep "default_zshrc" ~/.zshrc  || echo "source $HOME/.default_zshrc" >> ~/.zshrc
 
     echo -e "\nInstalling tpm"
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm || true
