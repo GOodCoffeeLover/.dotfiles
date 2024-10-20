@@ -260,29 +260,35 @@ local cfg = require("yaml-companion").setup({
         },
     },
     lspconfig = {
+        flags = {
+          debounce_text_changes = 150,
+        },
         settings = {
             filetypes = { "yaml", "yml" },
             yaml = {
                 validate = true,
+                format = { enable = true },
+                hover = true,
                 schemaStore = {
                     enable = false,
-                    url = "",
+                    url = "https://www.schemastore.org/api/json/catalog.json",
                 },
-                -- schemas from store, matched by filename
-                -- loaded automatically
-                schemas = require("schemastore").yaml.schemas({
+                schemaDownload = { enable = true },
+                schemas = {
+                    kubernetes = "*.yaml",
                     select = {
                         "kustomization.yaml",
                         "GitHub Workflow",
                     },
-                }),
+                },
+                trace = { server = "debug" },
             },
         },
     },
 })
 
-lspconfig.yamlls.setup(cfg)
 require("telescope").load_extension("yaml_schema")
+lspconfig.yamlls.setup(cfg)
 
 require('lspconfig').terraformls.setup({
     settings = {
