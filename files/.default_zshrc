@@ -72,8 +72,6 @@ ZSH_THEME="xiong-chiamiov"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
 	git 
-	kubectx 
-	kubectl 
 	zsh-autosuggestions
 )
 fpath+=~/.oh-my-zsh/custom/plugins/zsh-completions/src
@@ -106,8 +104,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias kx="k ctx"
-alias kns="k ns"
+alias kx="kubectl config use-context"
+alias kns="kubectl config set-context --current --namespace"
 
 export PATH=$PATH:/usr/local/go/bin
 export PATH="$PATH:$(go env GOPATH)/bin"
@@ -123,17 +121,17 @@ alias t=tmux
 alias ta='tmux attach || tmux'
 eval "$(starship init zsh)"
 
-export VISUAL=vim
+export VISUAL=nvim
 export EDITOR="$VISUAL"
 alias nv=nvim
 export PATH="$PATH:/opt/nvim-linux64/bin"
 
+source <(kubectl completion zsh)
 
-
-alias tf=tofu
-
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /usr/bin/tofu tofu
-autoload -U compinit; compinit
-source /home/schizo/yandex-cloud/completion.zsh.inc
+# alias tf=tofu
+# 
+# autoload -U +X bashcompinit && bashcompinit
+# complete -o nospace -C /usr/bin/tofu tofu
+# autoload -U compinit; compinit
+# source /home/schizo/yandex-cloud/completion.zsh.inc
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
