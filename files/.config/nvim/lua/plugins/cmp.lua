@@ -81,32 +81,11 @@ local lspconfig = require("lspconfig")
 local servers = {
     "bashls",
     "bufls",
-    "tsserver",
     "jsonls",
---    "jinja_lsp",
     "helm_ls",
     "sqls",
-    "ansiblels",
     "yamlls",
-    "autotools_ls",
-    "marksman",
 }
-lspconfig.jinja_lsp.setup({
-    default_config = {
-        name = "jinja-lsp",
-        cmd = { 'path_to_lsp_or_command' },
-        filetypes = { 'jinja', 'yaml' },
-        root_dir = function(fname)
-            return "."
-            --return nvim_lsp.util.find_git_ancestor(fname)
-        end,
-        init_options = {
-            templates = './templates',
-            backend = { './src' },
-            lang = "rust"
-        },
-    },
-})
 
 -- lsps with default config
 for _, lsp in ipairs(servers) do
@@ -235,9 +214,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end,
 })
 
+require('kubernetes').generate_schema()
 local cfg = require("yaml-companion").setup({
     builtin_matchers = {
-        kubernetes = { enabled = true },
+        kubernetes = { enabled = false },
     },
     schemas = {
         {
@@ -248,47 +228,26 @@ local cfg = require("yaml-companion").setup({
             name = "SealedSecret",
             uri = "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/bitnami.com/sealedsecret_v1alpha1.json",
         },
-        -- schemas below are automatically loaded, but added
-        -- them here so that they show up in the statusline
-        {
-            name = "Kustomization",
-            uri = "https://json.schemastore.org/kustomization.json",
-        },
-        {
-            name = "GitHub Workflow",
-            uri = "https://json.schemastore.org/github-workflow.json",
-        },
     },
     lspconfig = {
-        flags = {
-          debounce_text_changes = 150,
-        },
         settings = {
-            filetypes = { "yaml", "yml" },
             yaml = {
-                validate = true,
-                format = { enable = true },
-                hover = true,
-                schemaStore = {
-                    enable = false,
-                    url = "https://www.schemastore.org/api/json/catalog.json",
-                },
-                schemaDownload = { enable = true },
                 schemas = {
-                    kubernetes = "*.yaml",
-                    select = {
-                        "kustomization.yaml",
-                        "GitHub Workflow",
-                    },
+                    [require('kubernetes').yamlls_schema()] = "/*.yaml",
+                    -- ['kubernetes'] = "*.yaml",
                 },
-                trace = { server = "debug" },
+                schemaDownload = {  enable = false },
+                validate = false,
+                keyOrdering = false,
+                trace = {
+                    server = "verbose",
+                },
             },
         },
     },
 })
 
-require("telescope").load_extension("yaml_schema")
-lspconfig.yamlls.setup(cfg)
+require('lspconfig').yamlls.setup(cfg)
 
 require('lspconfig').terraformls.setup({
     settings = {

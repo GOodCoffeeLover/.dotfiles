@@ -126,9 +126,6 @@ require("lazy").setup({
                     virt_text_priority = 100,
                 },
                 current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
-                current_line_blame_formatter_opts = {
-                    relative_time = false,
-                },
                 sign_priority = 6,
                 update_debounce = 100,
                 status_formatter = nil, -- Use default
@@ -146,6 +143,7 @@ require("lazy").setup({
     },
     { "vim-pandoc/vim-pandoc" },
     { "vim-pandoc/vim-pandoc-syntax" },
+    { "diogo464/kubernetes.nvim" },
     {
         "folke/trouble.nvim",
         dependencies = { "nvim-tree/nvim-web-devicons" },

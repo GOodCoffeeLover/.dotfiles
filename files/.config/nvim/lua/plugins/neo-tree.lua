@@ -12,7 +12,7 @@ vim.fn.sign_define("DiagnosticSignHint", { text = "󰌵 ", texthl = "DiagnosticS
 require("neo-tree").setup({
     buffers = {
         follow_current_file = {
-            enabled = true,
+            enabled = false,
             leave_dirs_open = false,
         }
     },
