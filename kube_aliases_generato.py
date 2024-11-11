@@ -19,7 +19,6 @@
 
 from __future__ import print_function
 import itertools
-import os.path
 import sys
 
 
@@ -27,58 +26,69 @@ def main():
     # (alias, full, allow_when_oneof, incompatible_with)
     cmds = [('k', 'kubectl', None, None)]
 
-    globs = [('sys', '--namespace=kube-system', None, None)]
-
-    ops = [
-        ('a', 'apply --recursive -f', None, None),
-        ('ak', 'apply -k', None, ['sys']),
-        ('k', 'kustomize', None, ['sys']),
-        ('ex', 'exec -i -t', None, None),
-        ('lo', 'logs -f', None, None),
-        ('lop', 'logs -f -p', None, None),
-        ('p', 'proxy', None, ['sys']),
-        ('pf', 'port-forward', None, ['sys']),
-        ('g', 'get', None, None),
-        ('d', 'describe', None, None),
-        ('rm', 'delete', None, None),
-        ('rit', 'run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t', None, None),
-        ]
+    globs = [
+            #('sys', '--namespace=kube-system', None, None),
+            ]
 
     res = [
-        ('p', 'pods', ['g', 'd', 'rm'], None),
-        ('d', 'deployment', ['g', 'd', 'rm'], None),
-        ('ss', 'statefulset', ['g', 'd', 'rm'], None),
-        ('s', 'service', ['g', 'd', 'rm'], None),
-        ('i', 'ingress', ['g', 'd', 'rm'], None),
-        ('c', 'configmap', ['g', 'd', 'rm'], None),
-        ('sc', 'secret', ['g', 'd', 'rm'], None),
-        ('no', 'nodes', ['g', 'd'], ['sys']),
-        ('ns', 'namespaces', ['g', 'd', 'rm'], ['sys']),
-        ]
+        ('p', 'pod', ['c', 'g', 'd', 'del'], None),
+        ('d', 'deployment', ['c', 'g', 'd', 'del'], None),
+        ('ss', 'statefulset', ['c', 'g', 'd', 'del'], None),
+        ('s', 'service', ['c', 'g', 'd', 'del'], None),
+        ('i', 'ingress', ['c', 'g', 'd', 'del'], None),
+        ('cm', 'configmap', ['c', 'g', 'd', 'del'], None),
+        ('sc', 'secret', ['c', 'g', 'd', 'del'], None),
+        ('no', 'node', ['c', 'g', 'd'], None),
+        ('ns', 'namespace', ['c', 'g', 'd', 'del'], None),
+        # ('a', 'all', ['c', 'g', 'd'], None),
+        ('cl', 'cluster', ['c', 'g', 'd', 'del'], None),
+        ('acl', 'avotocluster', ['c', 'g', 'd', 'del'], None),
+        ('md', 'machinedeployment', ['c', 'g', 'd', 'del'], None),
+        ('mp', 'machinepool', ['c', 'g', 'd', 'del'], None),
+        ('m', 'machine', ['c', 'g', 'd', 'del'], None),
+        ('pm', 'platformmachine', ['c', 'g', 'd', 'del'], None),
+    ]
     res_types = [r[0] for r in res]
+
+
+    ops = [
+        ('a', 'apply', None, res_types),
+        ('as', 'apply --server-side', None, res_types),
+        ('eti', 'exec -t -i', None, None),
+        ('l', 'logs', None, None),
+        ('lf', 'logs -f', None, None),
+        ('lfp', 'logs -f -p', None, None),
+        ('p', 'proxy', None, None),
+        ('pf', 'port-forward', None, None),
+        ('g', 'get', None, None),
+        ('d', 'describe', None, None),
+        ('del', 'delete', None, None),
+        ('c', 'create', None, ['a']),
+        ('rit', 'run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t', None, None),
+        ]
 
     args = [
         ('oy', '-o=yaml', ['g'], ['ow', 'oj', 'sl']),
         ('ow', '-o=wide', ['g'], ['oy', 'oj']),
         ('oj', '-o=json', ['g'], ['ow', 'oy', 'sl']),
-        ('a', '--all-namespaces', ['g', 'd'], ['rm', 'f', 'no', 'sys']),
-        ('sl', '--show-labels', ['g'], ['oyaml', 'ojson'], None),
-        ('a', '--all', ['rm'], None), # caution: reusing the alias
+        ('A', '--all-namespaces', ['g', 'd'], ['del', 'f', 'no']),
+        ('sl', '--show-labels', ['g'], ['oy', 'oj'], None),
+        ('a', '--all', ['del'], None), # caution: reusing the alias
         ('w', '--watch', ['g'], ['oy', 'oj', 'ow']),
         ]
 
     # these accept a value, so they need to be at the end and
     # mutually exclusive within each other.
     positional_args = [
-            ('f', '--recursive -f', ['g', 'd', 'rm'], res_types + ['all' , 'l', 'sys']), 
-            ('l', '-l', ['g', 'd', 'rm'], ['f', 'all']),
-            ('n', '--namespace', ['g', 'd', 'rm', 'lo', 'ex', 'pf'], ['ns', 'no', 'sys', 'all']),
+            ('f', '--recursive -f', ['g', 'd', 'del', 'a', 'as'], res_types), 
+            ('l', '-l', ['g', 'd', 'del'], ['f', 'all']),
+            ('n', '--namespace', ['g', 'd', 'del', 'l', 'eti', 'pf'], ['ns', 'no']),
             ]
 
     # [(part, optional, take_exactly_one)]
     parts = [
         (cmds, False, True),
-        (globs, True, False),
+        # (globs, True, False),
         (ops, True, True),
         (res, True, True),
         (args, True, False),
@@ -86,8 +96,8 @@ def main():
         ]
 
     shellFormatting = {
-        "bash": "alias {}='{}'",
-        "zsh": "alias {}='{}'",
+        "bash": "alias -g {}='{}'",
+        "zsh": "alias -g {}='{}'",
         "fish": "abbr --add {} \"{}\"",
     }
 
@@ -98,16 +108,19 @@ def main():
 
     out = gen(parts)
 
-    seen_aliases = set()
+    seen_aliases = {}
 
     for cmd in out:
         alias = ''.join([a[0] for a in cmd])
         command = ' '.join([a[1] for a in cmd])
+        if "kubectl deployment" in command:
+            print("skip deployment use as command".format(alias, command, seen_aliases[alias]), file=sys.stderr)
+            continue
 
-        if alias in seen_aliases:
-            print("Alias conflict detected: {}".format(alias), file=sys.stderr)
+        if alias in seen_aliases.keys():
+            print("Alias conflict detected on {} for commands: {} and {}".format(alias, command, seen_aliases[alias]), file=sys.stderr)
 
-        seen_aliases.add(alias)
+        seen_aliases[alias] = command
 
         print(shellFormatting[shell].format(alias, command))
 
