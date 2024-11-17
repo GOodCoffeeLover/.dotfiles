@@ -1,4 +1,4 @@
--- Lua
+-- https://github.com/sindrets/diffview.nvim
 local actions = require("diffview.actions")
 
 require("diffview").setup({
@@ -37,7 +37,7 @@ require("diffview").setup({
     },
     merge_tool = {
       -- Config for conflicted files in diff views during a merge or rebase.
-      layout = "diff3_horizontal",
+      layout = "diff3_mixed",
       disable_diagnostics = true,   -- Temporarily disable diagnostics for diff buffers while in the view.
       winbar_info = true,           -- See |diffview-config-view.x.winbar_info|
     },
@@ -56,7 +56,7 @@ require("diffview").setup({
     },
     win_config = {                      -- See |diffview-config-win_config|
       position = "left",
-      width = 35,
+      width = 25,
       win_opts = {},
     },
   },
@@ -228,3 +228,4 @@ require("diffview").setup({
     },
   },
 })
+vim.opt.fillchars:append { diff = "╱" }
