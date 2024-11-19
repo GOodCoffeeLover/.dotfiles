@@ -225,8 +225,8 @@ local cfg = require("yaml-companion").setup({
             uri = "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/application_v1alpha1.json",
         },
         {
-            name = "SealedSecret",
-            uri = "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/bitnami.com/sealedsecret_v1alpha1.json",
+            name = "Kustomization",
+            uri = "https://json.schemastore.org/kustomization.json",
         },
     },
     lspconfig = {
@@ -235,6 +235,7 @@ local cfg = require("yaml-companion").setup({
                 schemas = {
                     [require('kubernetes').yamlls_schema()] = "/*.yaml",
                     -- ['kubernetes'] = "*.yaml",
+                    ['Kustomization'] = "kustomization.yaml",
                 },
                 schemaDownload = {  enable = false },
                 validate = false,
