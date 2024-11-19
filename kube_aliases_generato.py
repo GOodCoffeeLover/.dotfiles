@@ -42,7 +42,7 @@ def main():
         ('ns', 'namespace', ['c', 'g', 'd', 'del'], None),
         # ('a', 'all', ['c', 'g', 'd'], None),
         ('cl', 'cluster', ['c', 'g', 'd', 'del'], None),
-        ('acl', 'avotocluster', ['c', 'g', 'd', 'del'], None),
+        ('acl', 'avitocluster', ['c', 'g', 'd', 'del'], None),
         ('md', 'machinedeployment', ['c', 'g', 'd', 'del'], None),
         ('mp', 'machinepool', ['c', 'g', 'd', 'del'], None),
         ('m', 'machine', ['c', 'g', 'd', 'del'], None),
