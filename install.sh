@@ -14,6 +14,8 @@ function main(){
         rm ~/.zshrc
     fi
     stow --dir files --target "$HOME" . --adopt
+    mkdir "#HOME/.git_template/hooks"
+    ln -s "./prepare-commit-msg"  "$HOME/.git_template/hooks/prepare-commit-msg"
 
     grep "default_zshrc" ~/.zshrc  || echo "source $HOME/.default_zshrc" >> ~/.zshrc
     grep "kube_aliases" ~/.zshrc  || echo "source $HOME/.kube_aliases" >> ~/.zshrc
