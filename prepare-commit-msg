@@ -2,29 +2,39 @@
 
 import sys
 import re
+import logging
 from subprocess import check_output
+
+log = logging.getLogger()
+log.setLevel(logging.ERROR)
 def main():
     commit_msg_filepath = sys.argv[1]
-    branch = check_output(
-        ["git", "symbolic-ref", "--short", "HEAD"]
-    ).strip().decode()
+    try:
+        branch = check_output(
+            ["git", "symbolic-ref", "--short", "HEAD"]
+        ).strip().decode()
+    except Exception as ex:
+        log.warning(f"Failed to get symbolic-ref: {ex}")
+        return
 
 
     regex = "[A-Z]{2,7}-[0-9]{1,7}"
     tickets= re.findall(regex, branch)
     if len(tickets) == 0:
         return
-    print("tickets", tickets)
+    log.debug("tickets: %s", tickets)
 
     with open(commit_msg_filepath, "r+") as fh:
         commit_msg = fh.read()
         fh.seek(0, 0)
         for ticket in tickets:
             if ticket in commit_msg:
-                print("skip", ticket)
+                log.debug("skip %s", ticket)
                 continue
             commit_msg =f"[{ticket}] {commit_msg}"
-            print("add ticket", commit_msg)
+            log.info("add ticket %s", ticket)
+            
+        log.debug("final msg '%s'", commit_msg)
         fh.write(commit_msg)
 
 
