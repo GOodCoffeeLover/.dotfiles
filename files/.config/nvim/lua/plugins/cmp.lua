@@ -131,6 +131,16 @@ lspconfig["gopls"].setup({
             },
             staticcheck = true,
             gofumpt = true,
+            hints = {
+                rangeVariableTypes = true,
+                parameterNames = true,
+                constantValues = true,
+                assignVariableTypes = false,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = false,
+                functionTypeParameters = true,
+            },
+
         },
     },
 })

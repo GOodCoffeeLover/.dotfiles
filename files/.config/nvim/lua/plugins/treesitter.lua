@@ -33,6 +33,10 @@ require("nvim-treesitter.configs").setup({
         "typescript",
         "xml",
         "yaml",
+        "vim",
+        "vimdoc",
+        "query",
+
     },
     ignore_install = {},
     modules = {},
@@ -40,5 +44,6 @@ require("nvim-treesitter.configs").setup({
     auto_install = true,
     highlight = {
         enable = true,
+        additional_vim_regex_highlighting = false,
     },
 })
