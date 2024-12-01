@@ -2,6 +2,7 @@
 require('configs.plugins')
 require('configs.mappings')
 require('configs.settings')
+require('configs.colors')
 
 -- plugins
 require('plugins.bufferline')
