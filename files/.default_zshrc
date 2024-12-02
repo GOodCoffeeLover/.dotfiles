@@ -136,4 +136,4 @@ source <(kubectl completion zsh)
 # source /home/schizo/yandex-cloud/completion.zsh.inc
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
-alias wch='watch -n.5'
+alias wch='watch -n.5 --color'
