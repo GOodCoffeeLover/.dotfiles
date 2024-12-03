@@ -80,7 +80,7 @@ local lspconfig_util = require("lspconfig.util")
 local lspconfig = require("lspconfig")
 local servers = {
     "bashls",
-    "bufls",
+    "buf_ls",
     "jsonls",
     "helm_ls",
     "sqls",
@@ -245,14 +245,20 @@ local cfg = require("yaml-companion").setup({
                 schemas = {
                     [require('kubernetes').yamlls_schema()] = "/*.yaml",
                     -- ['kubernetes'] = "*.yaml",
-                    ['Kustomization'] = "kustomization.yaml",
+                    -- ['Kustomization'] = "kustomization.yaml",
+                    ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
+                    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = "roles/tasks/*.{yml,yaml}",
+                    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = "*play*.{yml,yaml}",
+                    ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
+                    -- ["https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json"] = "*flow*.{yml,yaml}",
                 },
-                schemaDownload = {  enable = false },
+                format = { enabled = false },
+                -- anabling this conflicts between Kubernetes resources and kustomization.yaml and Helmreleases
+                -- see utils.custom_lsp_attach() for the workaround
+                -- how can I detect Kubernetes ONLY yaml files? (no CRDs, Helmreleases, etc.)
                 validate = false,
-                keyOrdering = false,
-                trace = {
-                    server = "verbose",
-                },
+                completion = true,
+                hover = true,
             },
         },
     },

@@ -73,6 +73,7 @@ ZSH_THEME="xiong-chiamiov"
 plugins=(
 	git 
 	zsh-autosuggestions
+    golang
 )
 fpath+=~/.oh-my-zsh/custom/plugins/zsh-completions/src
 
