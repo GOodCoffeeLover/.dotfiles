@@ -31,7 +31,7 @@ def main():
             if ticket in commit_msg:
                 log.debug("skip %s", ticket)
                 continue
-            commit_msg =f"[{ticket}] {commit_msg}"
+            commit_msg = f"{ticket}: {commit_msg}"
             log.info("add ticket %s", ticket)
             
         log.debug("final msg '%s'", commit_msg)

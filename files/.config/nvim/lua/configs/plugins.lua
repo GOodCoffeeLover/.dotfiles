@@ -148,8 +148,6 @@ require("lazy").setup({
             })
         end
     },
-    { "vim-pandoc/vim-pandoc" },
-    { "vim-pandoc/vim-pandoc-syntax" },
     { "diogo464/kubernetes.nvim" },
     {
         "folke/trouble.nvim",
@@ -278,6 +276,12 @@ require("lazy").setup({
     {
         "lukas-reineke/headlines.nvim",
         dependencies = "nvim-treesitter/nvim-treesitter",
+    },
+    {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        ft = { "markdown" },
+        build = function() vim.fn["mkdp#util#install"]() end,
     },
     -- colored identations
     { "lukas-reineke/indent-blankline.nvim" },

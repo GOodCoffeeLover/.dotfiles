@@ -89,6 +89,12 @@ function! FoldText()
   return '> ' . l:snippet . ' |  folded ' . l:folded_count . ' lines...'
 endfunction
 set fillchars=fold:\ 
+
+function OpenMarkdownPreview (url)
+  execute "silent ! firefox --new-window " . a:url
+  execute "silent ! open -a Firefox -n --args --new-window " . a:url
+endfunction
+let g:mkdp_browserfunc = 'OpenMarkdownPreview'
   
 ]])
 
