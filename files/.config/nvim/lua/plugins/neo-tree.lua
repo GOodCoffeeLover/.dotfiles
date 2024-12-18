@@ -2,6 +2,8 @@
 -- vim.g.loaded_netrw = 1
 -- vim.g.loaded_netrwPlugin = 1
 
+require("luarocks-nvim").setup()
+
 vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
 vim.fn.sign_define("DiagnosticSignError", { text = " ", texthl = "DiagnosticSignError" })

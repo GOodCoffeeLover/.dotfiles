@@ -41,6 +41,18 @@ require("lazy").setup({
             "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
         },
     },
+{
+  "vhyrro/luarocks.nvim",
+  priority = 1000, -- Very high priority is required, luarocks.nvim should run as the first plugin in your config.
+  config = true,
+},
+    {
+        "3rd/image.nvim",
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            {"vhyrro/luarocks.nvim"},
+        },
+    },
     {
         "nvim-treesitter/nvim-treesitter",
         lazy = false,
@@ -150,13 +162,21 @@ require("lazy").setup({
     },
     { "diogo464/kubernetes.nvim" },
     {
-        "folke/trouble.nvim",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
-        opts = {
-            -- your configuration comes here
-            -- or leave it empty to use the default settings
-            -- refer to the configuration section below
+      "folke/trouble.nvim",
+      opts = {}, -- for default options, refer to the configuration section for custom setup.
+      cmd = "Trouble",
+      keys = {
+        {
+          "<leader>cs",
+          "<cmd>Trouble symbols toggle focus=false<cr>",
+          desc = "Symbols (Trouble)",
         },
+        {
+          "<leader>cl",
+          "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+          desc = "LSP Definitions / references / ... (Trouble)",
+        },
+      },
     },
     -- LSP support
     { "neovim/nvim-lspconfig"},
