@@ -21,5 +21,10 @@ Use ssh key in git:
 git config [--local|--global] core.sshCommand 'ssh -i ~/.ssh/<filename>'
 ```
 
+Restore plugins from lazy:
 
+from vim cmd:
+```
+:Lazy restore
+```
 
