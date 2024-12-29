@@ -117,5 +117,5 @@ style=''
 
 [hostname]
 ssh_only =  true
-format = '[$hostname](bold white)'
+format = '[ssh: $hostname](bold white)'
 disabled = false
