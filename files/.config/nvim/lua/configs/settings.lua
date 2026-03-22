@@ -1,150 +1,143 @@
-vim.cmd([[
-map <C-N> :bnext<cr>
-map <C-P> :bprevious<cr>
-map <leader>bd :bdelete<cr>
+-- Keybindings
+vim.keymap.set('n', '<C-n>', ':bnext<cr>', { noremap = true, silent = true })
+vim.keymap.set('n', '<C-p>', ':bprevious<cr>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bd', ':bdelete<cr>', { noremap = true, silent = true })
 
-set nobackup
-set number relativenumber
+-- Clear highlighting on escape in normal mode
+vim.keymap.set('n', '<esc>', ':noh<return><esc>', { noremap = true, silent = true })
+vim.keymap.set('n', '<esc>^[', '<esc>^[', { noremap = true, silent = true })
 
-set cursorline " cursorcolumn
-set cul
-set culopt=screenline
-hi CursorLine term=none cterm=none ctermbg=238
+-- Navigation improvements
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
+vim.keymap.set('n', 'n', 'nzzzv', { noremap = true, silent = true })
+vim.keymap.set('n', 'N', 'Nzzzv', { noremap = true, silent = true })
 
-set showmatch
+-- Quick insertion
+vim.keymap.set('n', '<C-Enter>', 'o<ESC>', { noremap = true, silent = true })
+vim.keymap.set('n', '<S-Enter>', 'O<ESC>', { noremap = true, silent = true })
 
-set swapfile
-set dir=/tmp
+-- Editor Settings
+local opt = vim.opt
 
-" Set shift width to 4 spaces.
-set shiftwidth=4
+opt.backup = false
+opt.number = true
+opt.relativenumber = true
 
-" Set tab width to 4 columns.
-set tabstop=4
+-- Cursor line settings
+opt.cursorline = true
+opt.culopt = 'screenline'
+vim.cmd('hi CursorLine term=none cterm=none ctermbg=238')
 
-" Use space characters instead of tabs.
-set expandtab
+-- Search settings
+opt.showmatch = true
+opt.incsearch = true
+opt.ignorecase = true
+opt.smartcase = true
+opt.hlsearch = true
 
-" Do not save backup files.
-set nobackup
+-- Indentation and tabs
+opt.shiftwidth = 4    -- Number of spaces for each indent
+opt.tabstop = 4       -- Number of columns for each tab character
+opt.expandtab = true  -- Use spaces instead of tabs
 
-" Do not let cursor scroll below or above N number of lines when scrolling.
-set scrolloff=10
+-- Backup and swap files
+opt.backup = false
+opt.swapfile = true
+opt.dir = '/tmp'
 
-" Do not wrap lines. Allow long lines to extend as far as the line goes.
-set nowrap
+-- Display settings
+opt.scrolloff = 10    -- Keep 10 lines visible when scrolling
+opt.wrap = false      -- Don't wrap lines
+opt.showcmd = true    -- Show partial commands
+opt.showmode = true   -- Show current mode
+opt.wildmenu = true   -- Enhanced command completion
+opt.wildmode = 'list:longest'
 
-" While searching though a file incrementally highlight matching characters as you type.
-set incsearch
-
-" Ignore capital letters during search.
-set ignorecase
-
-" Override the ignorecase option if searching for capital letters.
-" This will allow you to search specifically for capital letters.
-set smartcase
-
-" Show partial command you type in the last line of the screen.
-set showcmd
-
-" Show the mode you are on the last line.
-set showmode
-
-" Show matching words during a search.
-set showmatch
-
-" Use highlighting when doing a search.
-set hlsearch
-
-" Set the commands to save in history default number is 20.
-set history=1000
-
-" Enable auto completion menu after pressing TAB.
-set wildmenu
-
-" Make wildmenu behave like similar to Bash completion.
-set wildmode=list:longest
-
-" There are certain files that we would never want to edit with Vim.
-" Wildmenu will ignore files with these extensions.
-set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx
-
-" Clear highlighting on escape in normal mode
-nnoremap <esc> :noh<return><esc>
-nnoremap <esc>^[ <esc>^[
-
-nnoremap <C-d> <C-d>zz
-nnoremap <C-u> <C-u>zz
-nnoremap n nzzzv
-nnoremap N Nzzzv
-nnoremap <C-Enter> o<ESC>
-nnoremap <S-Enter> O<ESC>
-
-set splitbelow
-set splitright
-
-function! FoldText()
-  let l:snippet = getline(v:foldstart)
-  let l:folded_count = (v:foldend - v:foldstart + 1)
-  return '> ' . l:snippet . ' |  folded ' . l:folded_count . ' lines...'
-endfunction
-set fillchars=fold:\ 
-
-function OpenMarkdownPreview (url)
-  execute "silent ! firefox --new-window " . a:url
-  execute "silent ! open -a Firefox -n --args --new-window " . a:url
-endfunction
-let g:mkdp_browserfunc = 'OpenMarkdownPreview'
-  
-]])
-
-vim.opt.clipboard = "unnamedplus" -- SHARED clipboard with the system
-
--- https://neovim.discourse.group/t/add-custom-highlight-group-based-on-user-data-diagnostic-information/1626
-vim.diagnostic.handlers["strikethrough"] = {
-    show = function(namespace, bufnr, diagnostics, _)
-        local ns = vim.diagnostic.get_namespace(namespace)
-
-        if not ns.user_data.strikethrough_ns then
-            ns.user_data.strikethrough_ns = vim.api.nvim_create_namespace ""
-        end
-
-        local higroup = "DiagnosticStrikethroughDeprecated"
-        local strikethrough_ns = ns.user_data.strikethrough_ns
-
-        for _, diagnostic in ipairs(diagnostics) do
-            local user_data = diagnostic.user_data
-
-            if user_data and user_data.lsp.tags and vim.tbl_contains(user_data.lsp.tags, 2) then
-                vim.highlight.range(
-                bufnr,
-                strikethrough_ns,
-                higroup,
-                { diagnostic.lnum, diagnostic.col },
-                { diagnostic.end_lnum, diagnostic.end_col }
-                )
-            end
-        end
-    end,
-    hide = function(namespace, bufnr)
-        local ns = vim.diagnostic.get_namespace(namespace)
-
-        if ns.user_data.strikethrough_ns then
-            vim.api.nvim_buf_clear_namespace(bufnr, ns.user_data.strikethrough_ns, 0, -1)
-        end
-    end,
+-- Files to ignore in wildmenu completion
+opt.wildignore = {
+  '*.docx', '*.jpg', '*.png', '*.gif', '*.pdf',
+  '*.pyc', '*.exe', '*.flv', '*.img', '*.xlsx'
 }
 
-vim.cmd ([[
-augroup diagnostic_strikethrough_deprecated
-    autocmd!
-    autocmd ColorScheme * highlight DiagnosticStrikethroughDeprecated gui=strikethrough
-augroup END
-]])
+-- Command history
+opt.history = 1000
 
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldlevel = 99
---vim.opt.foldlevelstart = 2 -- folds code block on open
-vim.opt.foldnestmax = 4
-vim.cmd([[set foldtext=FoldText()]])
+-- Window splitting
+opt.splitbelow = true  -- Split windows below current window
+opt.splitright = true  -- Split windows to the right of current window
+
+-- Clipboard settings
+opt.clipboard = 'unnamedplus' -- Shared clipboard with system
+
+-- Folding settings
+opt.fillchars = { fold = ' ' }
+opt.foldmethod = 'expr'
+opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+opt.foldlevel = 99
+opt.foldnestmax = 4
+
+-- Custom fold text function
+function _G.foldtext()
+  local snippet = vim.fn.getline(vim.v.foldstart)
+  local folded_count = (vim.v.foldend - vim.v.foldstart + 1)
+  return string.format('> %s |  folded %d lines...', snippet, folded_count)
+end
+
+opt.foldtext = 'v:lua.foldtext()'
+
+-- Markdown preview function
+function _G.open_markdown_preview(url)
+  -- Try Linux command first
+  vim.fn.execute('silent ! firefox --new-window ' .. url)
+  -- Try macOS command
+  vim.fn.execute('silent ! open -a Firefox -n --args --new-window ' .. url)
+end
+
+vim.g.mkdp_browserfunc = 'v:lua.open_markdown_preview'
+
+-- Custom diagnostic handler for strikethrough deprecated
+vim.diagnostic.handlers["strikethrough"] = {
+  show = function(namespace, bufnr, diagnostics, _)
+    local ns = vim.diagnostic.get_namespace(namespace)
+
+    if not ns.user_data.strikethrough_ns then
+      ns.user_data.strikethrough_ns = vim.api.nvim_create_namespace("")
+    end
+
+    local higroup = "DiagnosticStrikethroughDeprecated"
+    local strikethrough_ns = ns.user_data.strikethrough_ns
+
+    for _, diagnostic in ipairs(diagnostics) do
+      local user_data = diagnostic.user_data
+
+      if user_data and user_data.lsp.tags and vim.tbl_contains(user_data.lsp.tags, 2) then
+        vim.highlight.range(
+          bufnr,
+          strikethrough_ns,
+          higroup,
+          { diagnostic.lnum, diagnostic.col },
+          { diagnostic.end_lnum, diagnostic.end_col }
+        )
+      end
+    end
+  end,
+  hide = function(namespace, bufnr)
+    local ns = vim.diagnostic.get_namespace(namespace)
+
+    if ns.user_data.strikethrough_ns then
+      vim.api.nvim_buf_clear_namespace(bufnr, ns.user_data.strikethrough_ns, 0, -1)
+    end
+  end,
+}
+
+-- Create autocommand group for diagnostic strikethrough
+local diagnostic_strikethrough_group = vim.api.nvim_create_augroup('diagnostic_strikethrough_deprecated', { clear = true })
+
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = diagnostic_strikethrough_group,
+  pattern = '*',
+  callback = function()
+    vim.cmd('highlight DiagnosticStrikethroughDeprecated gui=strikethrough')
+  end,
+})

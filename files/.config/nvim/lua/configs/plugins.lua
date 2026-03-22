@@ -41,11 +41,11 @@ require("lazy").setup({
             "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
         },
     },
-{
-  "vhyrro/luarocks.nvim",
-  priority = 1000, -- Very high priority is required, luarocks.nvim should run as the first plugin in your config.
-  config = true,
-},
+    {
+      "vhyrro/luarocks.nvim",
+      priority = 1000, -- Very high priority is required, luarocks.nvim should run as the first plugin in your config.
+      config = true,
+    },
     {
         "3rd/image.nvim",
         dependencies = {
@@ -305,5 +305,17 @@ require("lazy").setup({
     },
     -- colored identations
     { "lukas-reineke/indent-blankline.nvim" },
+    -- Claude Code CLI Integration for Neovim
+    {
+      "greggh/claude-code.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+      },
+      config = function()
+        require("claude-code").setup({
+            command = "ccr code",
+        })
+      end,
+    },
 })
 
