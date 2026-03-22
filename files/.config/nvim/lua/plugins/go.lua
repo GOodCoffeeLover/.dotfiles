@@ -56,14 +56,14 @@ require('go').setup({
   -- set to true: use gopls to format
   -- false if you want to use other formatter tool(e.g. efm, nulls)
   lsp_inlay_hints = {
-    enable = true, -- this is the only field apply to neovim > 0.10
+    enable = false, -- this is the only field apply to neovim > 0.10
 
    -- following are used for neovim < 0.10 which does not implement inlay hints
    -- hint style, set to 'eol' for end-of-line hints, 'inlay' for inline hints
-    style = 'inlay',
+    style = 'eol',
     -- Note: following setup only works for style = 'eol', you do not need to set it for 'inlay'
     -- Only show inlay hints for the current line
-    only_current_line = false,
+    only_current_line = true,
     -- Event which triggers a refersh of the inlay hints.
     -- You can make this "CursorMoved" or "CursorMoved,CursorMovedI" but
     -- not that this may cause higher CPU usage.
@@ -83,7 +83,7 @@ require('go').setup({
     -- padding from the left if max_len_align is true
     max_len_align_padding = 1,
     -- whether to align to the extreme right or not
-    right_align = false,
+    right_align = true,
     -- padding from the right if right_align is true
     right_align_padding = 6,
     -- The color of the hints
