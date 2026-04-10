@@ -6,7 +6,6 @@ require("mason-tool-installer").setup({
         "bash-language-server",
         "black",
         "buf",
-        "buf-language-server",
         "dagger",
         "debugpy",
         "delve",
