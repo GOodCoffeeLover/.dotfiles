@@ -55,6 +55,7 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
+        branch = "main",
         lazy = false,
         build = ":TSUpdate",
         opts = {
@@ -232,7 +233,6 @@ require("lazy").setup({
     },
     {
         "nvim-telescope/telescope.nvim",
-        tag = "0.1.6",
         dependencies = {
             "nvim-lua/plenary.nvim",
             {
@@ -318,4 +318,3 @@ require("lazy").setup({
       end,
     },
 })
-

@@ -75,28 +75,25 @@ cmp.setup.cmdline(":", {
 
 -- Set up lspconfig.
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-local lspconfig_util = require("lspconfig.util")
-local lspconfig = require("lspconfig")
 local servers = {
     "bashls",
     "buf_ls",
     "jsonls",
     "helm_ls",
     "sqls",
-    "yamlls",
 }
 
 -- lsps with default config
 for _, lsp in ipairs(servers) do
-    lspconfig[lsp].setup({
+    vim.lsp.config(lsp, {
         capabilities = capabilities,
     })
+    vim.lsp.enable(lsp)
 end
 
 -- lsps configured below: lua, go
 
-lspconfig.lua_ls.setup({
+vim.lsp.config("lua_ls", {
     capabilities = capabilities,
     settings = {
         Lua = {
@@ -108,16 +105,18 @@ lspconfig.lua_ls.setup({
             },
             -- Make the server aware of Neovim runtime files
             workspace = {
-                library = vim.api.nvim_get_runtime_file("", file),
+                library = vim.api.nvim_get_runtime_file("", true),
             },
         },
     },
 })
-lspconfig["gopls"].setup({
+vim.lsp.enable("lua_ls")
+
+vim.lsp.config("gopls", {
     capabilities = capabilities,
     cmd = { "gopls" },
     filetypes = { "go", "gomod", "gowork", "gotmpl" },
-    root_dir = lspconfig_util.root_pattern("go.work", "go.mod", ".git"),
+    root_markers = { "go.work", "go.mod", ".git" },
     settings = {
         gopls = {
             completeUnimported = true,
@@ -144,6 +143,7 @@ lspconfig["gopls"].setup({
         },
     },
 })
+vim.lsp.enable("gopls")
 
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*.go",
@@ -168,10 +168,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
 })
 
-lspconfig["pyright"].setup({
+vim.lsp.config("pyright", {
     capabilities = capabilities,
     filetypes = { "python" },
 })
+vim.lsp.enable("pyright")
 
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 vim.keymap.set("n", "<space>E", vim.diagnostic.open_float)
@@ -180,17 +181,15 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
 
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-    vim.lsp.handlers.hover, {
-        border = _border
-    }
-)
+local function with_border(handler)
+    return function(err, result, ctx, config)
+        config = vim.tbl_deep_extend("force", config or {}, { border = _border })
+        return handler(err, result, ctx, config)
+    end
+end
 
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-    vim.lsp.handlers.signature_help, {
-        border = _border
-    }
-)
+vim.lsp.handlers["textDocument/hover"] = with_border(vim.lsp.handlers.hover)
+vim.lsp.handlers["textDocument/signatureHelp"] = with_border(vim.lsp.handlers.signature_help)
 
 vim.diagnostic.config {
     float = { border = _border }
@@ -208,8 +207,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
         local opts = { buffer = ev.buf }
         -- vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
         -- vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-        vim.keymap.set("n", "<C-s>", vim.lsp.buf.signature_help, opts)
+        vim.keymap.set("n", "K", function()
+            vim.lsp.buf.hover({ border = _border })
+        end, opts)
+        vim.keymap.set("n", "<C-s>", function()
+            vim.lsp.buf.signature_help({ border = _border })
+        end, opts)
         vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, opts)
         vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, opts)
         vim.keymap.set("n", "<space>wl", function()
@@ -224,7 +227,28 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end,
 })
 
-require('kubernetes').generate_schema()
+local kubernetes_ok, kubernetes = pcall(require, "kubernetes")
+local kubernetes_schema = nil
+if kubernetes_ok then
+    local schema_ok, schema_value = pcall(kubernetes.yamlls_schema)
+    if schema_ok and type(schema_value) == "string" then
+        local schema_path = schema_value:gsub("^file://", "")
+        if vim.fn.filereadable(schema_path) == 1 then
+            kubernetes_schema = schema_value
+        end
+    end
+end
+
+local yaml_schemas = {
+    ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
+    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = "roles/tasks/*.{yml,yaml}",
+    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = "*play*.{yml,yaml}",
+    ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
+}
+if kubernetes_schema then
+    yaml_schemas[kubernetes_schema] = "/*.yaml"
+end
+
 local cfg = require("yaml-companion").setup({
     builtin_matchers = {
         kubernetes = { enabled = false },
@@ -242,16 +266,7 @@ local cfg = require("yaml-companion").setup({
     lspconfig = {
         settings = {
             yaml = {
-                schemas = {
-                    [require('kubernetes').yamlls_schema()] = "/*.yaml",
-                    -- ['kubernetes'] = "*.yaml",
-                    -- ['Kustomization'] = "kustomization.yaml",
-                    ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
-                    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = "roles/tasks/*.{yml,yaml}",
-                    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = "*play*.{yml,yaml}",
-                    ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
-                    -- ["https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json"] = "*flow*.{yml,yaml}",
-                },
+                schemas = yaml_schemas,
                 format = { enabled = false },
                 -- anabling this conflicts between Kubernetes resources and kustomization.yaml and Helmreleases
                 -- see utils.custom_lsp_attach() for the workaround
@@ -264,13 +279,18 @@ local cfg = require("yaml-companion").setup({
     },
 })
 
-require('lspconfig').yamlls.setup(cfg)
+vim.lsp.config("yamlls", vim.tbl_deep_extend("force", cfg or {}, {
+    capabilities = capabilities,
+}))
+vim.lsp.enable("yamlls")
 
-require('lspconfig').terraformls.setup({
+vim.lsp.config("terraformls", {
+    capabilities = capabilities,
     settings = {
         filetypes = {"terraform", "tf", "terraform-vars"}
     }
 })
+vim.lsp.enable("terraformls")
 vim.api.nvim_create_autocmd({"BufWritePre"}, {
   pattern = {"*.tf", "*.tfvars"},
   callback = function()

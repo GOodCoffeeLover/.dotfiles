@@ -1,46 +1,49 @@
-require("nvim-treesitter.configs").setup({
-    ensure_installed = {
-        -- https://github.com/nvim-treesitter/nvim-treesitter?tab=readme-ov-file#available-modules
-        "bash",
-        "c",
-        "cue",
-        "css",
-        "dockerfile",
-        "git_config",
-        "git_rebase",
-        "gitcommit",
-        "gitignore",
-        "go",
-        "gomod",
-        "gosum",
-        "gotmpl",
-        "gowork",
-        "hcl",
-        "helm",
-        "html",
-        "ini",
-        "json",
-        "lua",
-        "make",
-        --"markdown",
-        "proto",
-        "python",
-        "sql",
-        "terraform",
-        "tmux",
-        "xml",
-        "yaml",
-        "vim",
-        "vimdoc",
-        "query",
+local ts = require("nvim-treesitter")
 
-    },
-    ignore_install = {},
-    modules = {},
-    sync_install = false,
-    auto_install = true,
-    highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-    },
+local languages = {
+    -- https://github.com/nvim-treesitter/nvim-treesitter?tab=readme-ov-file#supported-languages
+    "bash",
+    "c",
+    "cue",
+    "css",
+    "dockerfile",
+    "git_config",
+    "git_rebase",
+    "gitcommit",
+    "gitignore",
+    "go",
+    "gomod",
+    "gosum",
+    "gotmpl",
+    "gowork",
+    "hcl",
+    "helm",
+    "html",
+    "ini",
+    "json",
+    "lua",
+    "make",
+    -- "markdown",
+    "proto",
+    "python",
+    "sql",
+    "terraform",
+    "tmux",
+    "xml",
+    "yaml",
+    "vim",
+    "vimdoc",
+    "query",
+}
+
+ts.setup({})
+-- If parser install fails with ENOENT "tree-sitter", fix with:
+-- brew install tree-sitter-cli
+ts.install(languages)
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "*",
+    callback = function(args)
+        pcall(vim.treesitter.start, args.buf)
+    end,
 })
