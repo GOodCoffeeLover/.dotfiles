@@ -227,62 +227,247 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end,
 })
 
-local kubernetes_ok, kubernetes = pcall(require, "kubernetes")
-local kubernetes_schema = nil
-if kubernetes_ok then
-    local schema_ok, schema_value = pcall(kubernetes.yamlls_schema)
-    if schema_ok and type(schema_value) == "string" then
-        local schema_path = schema_value:gsub("^file://", "")
-        if vim.fn.filereadable(schema_path) == 1 then
-            kubernetes_schema = schema_value
+local kubernetes_schema_generation_requested = false
+local kubernetes_gvk_schema_index = nil
+
+local function resolve_kubernetes_schema()
+    local kubernetes_ok, kubernetes = pcall(require, "kubernetes")
+    if not kubernetes_ok then
+        return nil
+    end
+
+    local schema_ok, schema_uri = pcall(kubernetes.yamlls_schema)
+    if not schema_ok or type(schema_uri) ~= "string" then
+        return nil
+    end
+
+    local schema_path = schema_uri:gsub("^file://", "")
+    if vim.fn.filereadable(schema_path) == 1 then
+        return schema_uri
+    end
+
+    if not kubernetes_schema_generation_requested then
+        kubernetes_schema_generation_requested = true
+        pcall(kubernetes.generate_schema)
+    end
+
+    return nil
+end
+
+local function parse_yaml_api_version_and_kind(lines)
+    local api_version = nil
+    local kind = nil
+    for _, line in ipairs(lines) do
+        if not api_version then
+            local m = line:match("^%s*apiVersion%s*:%s*([%w%._%-%/]+)%s*$")
+            if m then
+                api_version = m
+            end
+        end
+        if not kind then
+            local m = line:match("^%s*kind%s*:%s*([%w%._%-]+)%s*$")
+            if m then
+                kind = m
+            end
+        end
+        if api_version and kind then
+            return api_version, kind
         end
     end
+    return nil, nil
+end
+
+local function build_kubernetes_gvk_schema_index(kubernetes_schema)
+    if kubernetes_gvk_schema_index then
+        return kubernetes_gvk_schema_index
+    end
+
+    local schema_path = kubernetes_schema:gsub("^file://", "")
+    local schema_dir = vim.fn.fnamemodify(schema_path, ":h")
+    local definitions_path = schema_dir .. "/definitions.json"
+    if vim.fn.filereadable(definitions_path) ~= 1 then
+        return nil
+    end
+
+    local decoded = vim.json.decode(table.concat(vim.fn.readfile(definitions_path), "\n"))
+    if type(decoded) ~= "table" or type(decoded.definitions) ~= "table" then
+        return nil
+    end
+
+    local index = {}
+    local base_uri = "file://" .. definitions_path .. "#/definitions/"
+    for def_name, def_body in pairs(decoded.definitions) do
+        if type(def_body) == "table" and type(def_body["x-kubernetes-group-version-kind"]) == "table" then
+            for _, gvk in ipairs(def_body["x-kubernetes-group-version-kind"]) do
+                if type(gvk) == "table" and type(gvk.kind) == "string" and type(gvk.version) == "string" then
+                    local group = type(gvk.group) == "string" and gvk.group or ""
+                    local key = group .. "/" .. gvk.version .. "#" .. gvk.kind
+                    if not index[key] then
+                        index[key] = base_uri .. def_name
+                    end
+                end
+            end
+        end
+    end
+
+    kubernetes_gvk_schema_index = index
+    return index
 end
 
 local yaml_schemas = {
-    ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
-    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = "roles/tasks/*.{yml,yaml}",
-    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = "*play*.{yml,yaml}",
-    ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
+    ["https://json.schemastore.org/kustomization.json"] = { "kustomization.yaml", "kustomization.yml", "/kustomization.yaml", "/kustomization.yml", "**/kustomization.yaml", "**/kustomization.yml" },
+    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = { "roles/tasks/*.yaml", "roles/tasks/*.yml", "/roles/tasks/*.yaml", "/roles/tasks/*.yml", "**/roles/tasks/*.yaml", "**/roles/tasks/*.yml" },
+    ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = { "*play*.yaml", "*play*.yml", "*/play*.yaml", "*/play*.yml", "**/*play*.yaml", "**/*play*.yml" },
+    ["https://json.schemastore.org/chart.json"] = { "Chart.yaml", "Chart.yml", "/Chart.yaml", "/Chart.yml", "**/Chart.yaml", "**/Chart.yml" },
 }
-if kubernetes_schema then
-    yaml_schemas[kubernetes_schema] = "/*.yaml"
+
+local yamlls_cfg = {
+    capabilities = capabilities,
+    settings = {
+        yaml = {
+            schemas = yaml_schemas,
+            schemaStore = {
+                enable = true,
+                url = "https://www.schemastore.org/api/json/catalog.json",
+            },
+            schemaDownload = { enable = true },
+            format = { enable = false },
+            -- anabling this conflicts between Kubernetes resources and kustomization.yaml and Helmreleases
+            -- see utils.custom_lsp_attach() for the workaround
+            -- how can I detect Kubernetes ONLY yaml files? (no CRDs, Helmreleases, etc.)
+            validate = true,
+            completion = true,
+            hover = true,
+            keyOrdering = false,
+        },
+    },
+}
+
+vim.lsp.config("yamlls", yamlls_cfg)
+vim.lsp.enable("yamlls")
+
+local function maybe_attach_kubernetes_schema(bufnr)
+    local kubernetes_schema = resolve_kubernetes_schema()
+    if not kubernetes_schema then
+        return
+    end
+
+    local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ":t"):lower()
+    if filename == "kustomization.yaml" or filename == "kustomization.yml" or filename == "chart.yaml" or filename == "chart.yml" then
+        return
+    end
+
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, math.min(200, vim.api.nvim_buf_line_count(bufnr)), false)
+    local api_version, kind = parse_yaml_api_version_and_kind(lines)
+    if not (api_version and kind) then
+        return
+    end
+
+    local group, version = "", api_version
+    local slash = api_version:find("/", 1, true)
+    if slash then
+        group = api_version:sub(1, slash - 1)
+        version = api_version:sub(slash + 1)
+    end
+
+    local schema_for_buffer = kubernetes_schema
+    local gvk_index = build_kubernetes_gvk_schema_index(kubernetes_schema)
+    if gvk_index then
+        local gvk_key = group .. "/" .. version .. "#" .. kind
+        if type(gvk_index[gvk_key]) == "string" then
+            schema_for_buffer = gvk_index[gvk_key]
+        end
+    end
+
+    local bufuri = vim.uri_from_bufnr(bufnr)
+    local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "yamlls" })
+    for _, client in ipairs(clients) do
+        local settings = vim.deepcopy(client.settings or {})
+        settings.yaml = settings.yaml or {}
+        settings.yaml.schemas = settings.yaml.schemas or {}
+
+        for schema_uri, target in pairs(settings.yaml.schemas) do
+            if target == bufuri and type(schema_uri) == "string" and schema_uri:find("/kubernetes.nvim/", 1, true) then
+                settings.yaml.schemas[schema_uri] = nil
+            end
+        end
+
+        settings.yaml.schemas[schema_for_buffer] = bufuri
+        client.settings = settings
+        client:notify("workspace/didChangeConfiguration", { settings = settings })
+    end
 end
 
-local cfg = require("yaml-companion").setup({
-    builtin_matchers = {
-        kubernetes = { enabled = false },
-    },
-    schemas = {
-        {
-            name = "Argo CD Application",
-            uri = "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/application_v1alpha1.json",
-        },
-        {
-            name = "Kustomization",
-            uri = "https://json.schemastore.org/kustomization.json",
-        },
-    },
-    lspconfig = {
-        settings = {
-            yaml = {
-                schemas = yaml_schemas,
-                format = { enabled = false },
-                -- anabling this conflicts between Kubernetes resources and kustomization.yaml and Helmreleases
-                -- see utils.custom_lsp_attach() for the workaround
-                -- how can I detect Kubernetes ONLY yaml files? (no CRDs, Helmreleases, etc.)
-                validate = false,
-                completion = true,
-                hover = true,
-            },
-        },
-    },
+vim.api.nvim_create_autocmd({ "LspAttach", "BufWritePost" }, {
+    pattern = { "*.yaml", "*.yml" },
+    callback = function(ev)
+        maybe_attach_kubernetes_schema(ev.buf)
+    end,
 })
 
-vim.lsp.config("yamlls", vim.tbl_deep_extend("force", cfg or {}, {
-    capabilities = capabilities,
-}))
-vim.lsp.enable("yamlls")
+vim.api.nvim_create_autocmd("BufEnter", {
+    pattern = { "*.yaml", "*.yml" },
+    callback = function(ev)
+        vim.defer_fn(function()
+            if vim.api.nvim_buf_is_valid(ev.buf) then
+                maybe_attach_kubernetes_schema(ev.buf)
+            end
+        end, 1200)
+    end,
+})
+
+vim.api.nvim_create_user_command("YamllsSchemaInfo", function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "yamlls" })
+    if #clients == 0 then
+        vim.notify("yamlls is not attached to current buffer", vim.log.levels.WARN)
+        return
+    end
+
+    local responses = vim.lsp.buf_request_sync(bufnr, "yaml/get/jsonSchema", { vim.uri_from_bufnr(bufnr) }, 1200)
+    if type(responses) ~= "table" then
+        vim.notify("yamlls did not return schema info", vim.log.levels.WARN)
+        return
+    end
+
+    local schema = nil
+    for _, resp in pairs(responses) do
+        if type(resp) == "table" and type(resp.result) == "table" and type(resp.result[1]) == "table" then
+            schema = resp.result[1]
+            break
+        end
+    end
+
+    if not schema then
+        vim.notify("No active YAML schema for current buffer", vim.log.levels.INFO)
+        return
+    end
+
+    local name = schema.name or "unnamed"
+    local uri = schema.uri or "unknown-uri"
+    vim.notify(("yamlls schema: %s\n%s"):format(name, uri), vim.log.levels.INFO)
+end, { desc = "Show active yamlls schema for current buffer" })
+
+vim.api.nvim_create_user_command("YamllsSchemaDump", function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "yamlls" })
+    if #clients == 0 then
+        vim.notify("yamlls is not attached to current buffer", vim.log.levels.WARN)
+        return
+    end
+
+    local schemas = (((clients[1] or {}).settings or {}).yaml or {}).schemas or {}
+    local lines = vim.split(vim.inspect(schemas), "\n", { plain = true })
+
+    vim.cmd("new")
+    local out = vim.api.nvim_get_current_buf()
+    vim.bo[out].buftype = "nofile"
+    vim.bo[out].bufhidden = "wipe"
+    vim.bo[out].swapfile = false
+    vim.bo[out].filetype = "lua"
+    vim.api.nvim_buf_set_name(out, "yamlls-schema-dump")
+    vim.api.nvim_buf_set_lines(out, 0, -1, false, lines)
+end, { desc = "Dump current yamlls schema mappings to a scratch buffer" })
 
 vim.lsp.config("terraformls", {
     capabilities = capabilities,

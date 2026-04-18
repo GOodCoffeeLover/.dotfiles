@@ -161,7 +161,15 @@ require("lazy").setup({
             })
         end
     },
-    { "diogo464/kubernetes.nvim" },
+    {
+        "diogo464/kubernetes.nvim",
+        config = function()
+            local ok, kubernetes = pcall(require, "kubernetes")
+            if ok then
+                pcall(kubernetes.setup, { patch = false })
+            end
+        end,
+    },
     {
       "folke/trouble.nvim",
       opts = {}, -- for default options, refer to the configuration section for custom setup.
@@ -246,13 +254,6 @@ require("lazy").setup({
     },
     { "windwp/nvim-autopairs" },
     { "akinsho/bufferline.nvim", dependencies = "nvim-tree/nvim-web-devicons" },
-    {
-        "someone-stole-my-name/yaml-companion.nvim",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "nvim-telescope/telescope.nvim",
-        },
-    },
     { "b0o/schemastore.nvim" },
     {
         "folke/which-key.nvim",
