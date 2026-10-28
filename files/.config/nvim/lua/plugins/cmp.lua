@@ -120,6 +120,7 @@ vim.lsp.config("gopls", {
     settings = {
         gopls = {
             completeUnimported = true,
+            buildFlags = { "-tags=integration" },
             -- enables placeholders with the function signature/parameters when autocompleted (e.g. make -> make(type, 0))
             usePlaceholders = true,
             -- there's much more static analysis tools provided by gopls

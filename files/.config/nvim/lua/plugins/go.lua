@@ -1,3 +1,21 @@
+if not vim.g.__golangci_config_diag_warn_patch then
+  vim.g.__golangci_config_diag_warn_patch = true
+  local diagnostic_set = vim.diagnostic.set
+
+  vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
+    if type(diagnostics) == "table" then
+      for _, d in ipairs(diagnostics) do
+        local message = (d and d.message) or ""
+        if message:find("can't load config", 1, true)
+            and message:find("unsupported version of the configuration", 1, true) then
+          d.severity = vim.diagnostic.severity.WARN
+        end
+      end
+    end
+    return diagnostic_set(namespace, bufnr, diagnostics, opts)
+  end
+end
+
 require('go').setup({
 
   disable_defaults = false, -- true|false when true set false to all boolean settings and replace all tables
@@ -33,6 +51,10 @@ require('go').setup({
                         --    vim.api.nvim_buf_set_keymap(bufnr, "n", "<space>F", "<cmd>lua vim.lsp.buf.formatting()<CR>", {noremap=true, silent=true})
                         -- end
                         -- to setup a table of codelens
+  golangci_lint = {
+    default = "standard",
+    no_config = true, -- ignore broken project .golangci* configs
+  },
   null_ls = {           -- set to false to disable null-ls setup
     golangci_lint = {
       method = {"NULL_LS_DIAGNOSTICS_ON_SAVE", "NULL_LS_DIAGNOSTICS_ON_OPEN"}, -- when it should run
@@ -129,4 +151,3 @@ require('go').setup({
   on_exit = function(code, signal, output)  _, _, _ = code, signal, output  end, -- callback for jobexit, output : string
   iferr_vertical_shift = 4 -- defines where the cursor will end up vertically from the begining of if err statement
 })
-
